@@ -35,7 +35,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  -->
 
 <head>
-  <title>Online Python Tutor - Visualize program execution</title>
+  <title>Vizualizacija izvršavanja programa</title>
 
   <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
 
@@ -107,20 +107,20 @@ var python3_backend_script = '../action-optv3.php';
 <body>
 
 <p style="text-align: center;">
-<a href="<?php echo cscurl('homepage'); ?>">Computer Science Circles Homepage</a> 
+<a href="<?php echo cscurl('homepage'); ?>">Naš sajt - Početna</a> 
  | 
-<a href="<?php echo cscurl('contact'); ?>">Contact Us</a>
+<a href="<?php echo cscurl('kontakt'); ?>">Kontakt</a>
 </p>
 
 <div id="pyInputPane">
 
-Write your Python 3 code here:
+Napišite Vaš Python 3 kod ovde:
 <br/>
 
 <div id="codeInputPane"></div> <!-- populate with a CodeMirror instance -->
 
 <p style="margin-top: 10px; line-height: 200%; display: none">
-Execute code using
+Izvršiti kod korišćenjem
   <select id="pythonVersionSelector">
     <option value="3">Python 3.3</option> <!-- default for cemc -->
     <option value="2">Python 2.7</option>
@@ -148,12 +148,11 @@ Execute code using
 </p>
 
 <p style='text-align:center'>
-<button id="executeBtn" class="bigBtn" type="button">Visualize Execution</button>
+<button id="executeBtn" class="bigBtn" type="button">Vizualizacija izvršenja programa</button>
 </p>
 
 <div class="collapseContain hiding">
-<div class="collapseHead"><span class="icon"></span>Enter
- optional text input for the program to read with <tt>input()</tt>:
+<div class="collapseHead"><span class="icon"></span>Unesite opcioni ulaz programa sa <tt>input()</tt>:
 </div> 
 <div class="collapseBody">
 <textarea id="stdinPane" cols="55" rows="5" wrap="off" style='width:100%'></textarea>
@@ -163,17 +162,17 @@ Execute code using
 <?php
 
   if (is_user_logged_in())
-          echo niceFlex('us', __t('History of previous visualizer submissions'),
+          echo niceFlex('us', __t('Istorija prethodnih vizualizacija'),
 	                'problem-history', 'dbProblemHistory', 
                         array('user'=>getUserID(), 'p'=>'visualizer'));
 ?>
 
 <div class="collapseContain hiding">
-<div class="collapseHead"><span class="icon"></span>Examples
+<div class="collapseHead"><span class="icon"></span>Primeri
 </div> 
 <div class="collapseBody">
 
-<p>Basic Examples:<br/>
+<p>Osnovni primeri:<br/>
 
 <a id="aliasExampleLink" href="#">hello</a> |
 <a id="happyExampleLink" href="#">happy</a> |
@@ -184,7 +183,7 @@ Execute code using
 <a id="listCompLink" href="#">list comprehension</a>
 </p>
 
-<p style="margin-top: 15px;">Math-Related Fun:<br/>
+<p style="margin-top: 15px;">Matematičke funkcije:<br/>
 <a id="factExampleLink" href="#">factorial</a> |
 <a id="fibonacciExampleLink" href="#">fibonacci</a> |
 <a id="memoFibExampleLink" href="#">memoized fibonacci</a> |
@@ -193,7 +192,7 @@ Execute code using
 <a id="towersOfHanoiLink" href="#">towers of hanoi</a>
 </p>
 
-<p style="margin-top: 15px;">Higher-Order Functions:<br/>
+<p style="margin-top: 15px;">Funkcije višeg reda:<br/>
 
 <a id="closure1Link" href="#">closure 1</a> |
 <a id="closure2Link" href="#">closure 2</a> |
@@ -209,13 +208,13 @@ Execute code using
 
 </p>
 
-<p style="margin-top: 15px;">User Input:<br/>
+<p style="margin-top: 15px;">Korisnički unos:<br/>
 
 <a id="rawInputExampleLink" href="#">raw input</a>
 
 </p>
 
-<p style="margin-top: 15px;">Object-Oriented Programming:<br/>
+<p style="margin-top: 15px;">Objektno-orijentisano programiranje:<br/>
 
 <a id="oop1ExampleLink" href="#">OOP 1</a> |
 <a id="oop2ExampleLink" href="#">OOP 2</a> |
@@ -224,7 +223,7 @@ Execute code using
 
 </p>
 
-<p style="margin-top: 15px;">Linked Lists:<br/>
+<p style="margin-top: 15px;">Povezane liste:<br/>
 <a id="ll1Link" href="#">LL 1</a> |
 <a id="ll2Link" href="#">LL 2</a> |
 <a id="sumListLink" href="#">LL sum</a>
@@ -243,7 +242,7 @@ Execute code using
 <a id="pwSumListLink" href="#">sumList</a>
 </p>
 
-<p style="margin-top: 15px;">More Python Tricks:<br/>
+<p style="margin-top: 15px;">Python trikovi:<br/>
 <a id="decoratorsLink" href="#">decorators</a> |
 <a id="genPrimesLink" href="#">generators</a> |
 <a id="genExprLink" href="#">gen expr</a> |
@@ -264,13 +263,13 @@ Execute code using
 <div id="footer">
 
 <p>
-  <button id="genUrlBtn" class="smallBtn" type="button">Generate URL</button> <input type="text" id="urlOutput" size="70"/>
+  <button id="genUrlBtn" class="smallBtn" type="button">Generišite URL</button> <input type="text" id="urlOutput" size="70"/>
 </p>
 
-<p>To share this visualization, click the 'Generate URL' button above
+<!-- <p>To share this visualization, click the 'Generate URL' button above
 and share that URL. You can use it to share with others or 
 <a href="<?php cscurl('contact'); ?>">report a bug</a>.
-
+-->
 <!--
 <div id="embedLinkDiv">
 <p>
@@ -317,12 +316,12 @@ to receive occasional announcements.
 (Your name and email address will be kept private; only the list owner can see them.)</p>
 -->
 
-<p>For more information about this tool (including Python 2 usage), visit <a href="http://www.pythontutor.com/">www.pythontutor.com</a>.</p>
+<p>Za više informacija o ovom alatu pogledajte na <a href="http://www.pythontutor.com/">www.pythontutor.com</a>.</p>
 
 <p style="margin-top: 8px;">
-Original tool &copy; 2010-2013 <a href="http://www.pgbovine.net/">Philip Guo</a>. 
-This version by <a href="http://cscircles.cemc.uwaterloo.ca">CS Circles</a>.
-</p>
+Originalni alat &copy; 2010-2013 <a href="http://www.pgbovine.net/">Philip Guo</a>. 
+ <!-- This version by <a href="http://cscircles.cemc.uwaterloo.ca">CS Circles</a>.
+</p>-->
 
 </div>
 

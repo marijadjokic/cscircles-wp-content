@@ -1,6 +1,7 @@
 <?php
 
 function user_pb_options_fields( $user ) { 
+
   /*  $checkd = "";
   if (get_the_author_meta( 'pbplain', $user->ID )=='true') $checkd = ' checked="yes"  ';
   $oh = "";
@@ -9,10 +10,13 @@ function user_pb_options_fields( $user ) {
   if (get_the_author_meta( 'pbnocc', $user->ID )=='true') $nocc = ' checked="yes"  ';
   $optout = "";
   if (get_the_author_meta( 'pboptout', $user->ID )=='true') $optout = ' checked="yes"  ';
-  $guru_login = get_the_author_meta( 'pbguru', $user->ID );
+  $guru_login = get_the_author_meta( 'pbguru', $user->ID ); 
+
+  //echo $guru_login;
+global $wpdb;
   $gurucheck = '';
-  if (trim($guru_login) != '') {
-    global $wpdb;
+  if ($guru_login != '') {
+   
     $guruid = $wpdb->get_var($wpdb->prepare('SELECT ID from '.$wpdb->prefix.'users WHERE user_login = %s', $guru_login));
     if ($guruid === NULL) 
       $gurucheck = 
@@ -23,33 +27,82 @@ function user_pb_options_fields( $user ) {
   }
   else 
     $gurucheck = __t("Enter the username of your guru. After you press <i>Update profile</i> we'll see if they exist.");
-  
-  $guruinput = '<input type="text" name="pbguru" id="pbguru" value="'. htmlspecialchars($guru_login) . '"> ' . $gurucheck .'<br/>';
-  
-?>
-  <h3>Computer Science Circles Options</h3>
+
+$gurulist=array();
+$mygur="";
+
+
+$gurulist = $wpdb->get_results('SELECT user_id, display_name FROM wp_user2role2object_rs, wp_users WHERE role_name="administrator" AND user_id=id', ARRAY_A);
+
+//echo $gurulist;
+//echo "admin count".count($gurulist);
+
+//modifided by Marija Djokic
+
+$myguru = $wpdb->get_var($wpdb->prepare('SELECT meta_value FROM wp_usermeta WHERE meta_key="pbguru" AND user_ID="'.$user->ID.'"'));
+//echo "my guru: ".$myguru;
+
+
+if($myguru!=''){// ako postoji mentor
+  ?>
+<h3>Computer Science Circles Options</h3>
      <table class="form-table">
-     <tr><th><label for="pbguru"><?php echo __t('Guru&apos;s <i>Username</i> (blank for none)'); ?></label></th>
+     <tr><th><label for="pbguru"><?php echo __t('Vaš mentor'); ?></label></th>
 				<td>
-		     <?php echo $guruinput . __t("Any other person with a CS Circles account (such as your teacher) can be your guru. You can ask them direct questions when you get stuck, and they can view your progress.");
+<?php
+   echo '<select name="pbguru">';
+foreach($gurulist as $guru){
+    
+     if($myguru==$guru['display_name']) echo '<option value="'.$guru['display_name'].'"selected="selected">'.$guru['display_name'].'</option>';
+    else echo '<option value="'.$guru['display_name'].'">'.$guru['display_name'].'</option>';
+   }
+   echo '<option value="">Samostalno učenje</option>';
+echo '</select>';
+  echo $guruinput . __t(" Mentoru možete postavljati direktna pitanja, a on će moći da prati Vaš progres. Odabir opcije <i>Samostalno učenje</i> označava da ne želite mentora.");
+}
+
+else {// ako ne postoji mentor
+?>
+<h3>Computer Science Circles Options</h3>
+     <table class="form-table">
+     <tr><th><label for="pbguru"><?php echo __t('Vaš mentor'); ?></label></th>
+				<td>
+<?php
+echo '<select name="pbguru">';
+   echo '<option value="">Samostalno učenje</option>';
+foreach($gurulist as $guru){
+  echo '<option value="'.$guru['display_name'].'">'.$guru['display_name'].'</option>';
+}
+echo '</select>';
+echo $guruinput . __t(" Mentoru možete postavljati direktna pitanja, a on će moći da prati Vaš progres. Odabir opcije <i>Samostalno učenje</i> označava da ne želite mentora.");
+}
+
+
+ //$guruinput = '<input type="text" name="pbguru" id="pbguru" value="'. htmlspecialchars($guru_login) . '"> ' . $gurucheck .'<br/>';
+
+//
+  
+
+		    
 ?>
 	 </input>
        </td>
        </tr>
        <tr>
-	     <th><label for="pbnocc"><?php echo __t("Don&apos;t Send Mail Copies");?></label></th>
+	     <th><label for="pbnocc"><?php echo __t("Ne šalji kopiju poruka");?></label></th>
        <td>
      <input type="checkbox" name="pbnocc" id="pbnocc"<?php echo $nocc ." > ".
-     __t("(default: unchecked) If checked, you will not receive a carbon copy when you send a message."); ?></input>
+     __t("Čekiranjem ovog polja kopije Vaših poslatih poruka neće biće prosleđene na Vašu elektronsku adresu."); ?></input>
        </td>
        </tr>
-       <tr>
-														<th><label for="pboptout"><?php echo __t("Opt Out of Mass Emails"); ?></label></th>
+      <!-- <tr>
+														  <th><label for="pboptout"><?php echo __t("Opt Out of Mass Emails"); ?></label></th>
+
        <td>
      <input type="checkbox" name="pboptout" id="pboptout"<?php echo $optout . " > ".
  __t("(default: unchecked) If checked, you will not receive announcements from CS Circles. They are pretty infrequent, about once per year.");?></input>
        </td>
-       </tr>
+       </tr> -->
        </table>
     <?php }
 
@@ -61,6 +114,7 @@ function user_pb_options_fields_save( $user_id ) {
   //pyboxlog('save' . print_r($_POST, TRUE));
   if ( !current_user_can( 'edit_user', $user_id ) )
     return false;
+
   /*  update_user_meta( $user_id, 'pbplain', ($_POST['pbplain']=='on')?'true':'false' );
    update_user_meta( $user_id, 'pboldhistory', ($_POST['pboldhistory']=='on')?'true':'false' );*/
   update_user_meta( $user_id, 'pbguru', ($_POST['pbguru']));

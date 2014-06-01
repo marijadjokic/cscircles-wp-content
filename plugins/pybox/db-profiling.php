@@ -16,7 +16,7 @@ echo dbFlexigrid
    $db_query_info['type'] = 'profiling';
 
    if ( !userIsAdmin() )
-     return "Error";
+     return "Greška";
    global $wpdb;
 
    $L = getSoft($_POST, 'frequency', '');

@@ -72,7 +72,9 @@ if ($cached_result === NULL || !isSoft($_REQUEST, "iframe_mode", "Y")) {
                   'userid' => is_user_logged_in() ? wp_get_current_user()->ID : -1);
   
   $table_name = $wpdb->prefix . "pb_submissions";
-  $wpdb->insert( $table_name, $logRow);
+  //modified by Marija Djokic
+  //$wpdb->insert( $table_name, $logRow);
+  //
   
   $logid = $wpdb->insert_id;
  }

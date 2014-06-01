@@ -66,7 +66,6 @@ add_action('get_header', 'my_filter_head');
 function my_filter_head() {
   remove_action('wp_head', '_admin_bar_bump_cb');
 }
-
 /*************************************************/
 // stuff that used to be in a plugin, but now is in the theme
 /*************************************************/
@@ -136,8 +135,8 @@ function login_style() {
 }
 function login_subtitle( $message ) {
   //this is a good time to print a new header
-  echo "<h1>".__t("Computer Science Circles")."</h1>";
-  echo "<h2 style='text-align:center;margin:0.5em'>".__t("Log In or Create Account")."</h2>";
+  echo "<h1>".__t("Naš sajt")."</h1>";
+  echo "<h2 style='text-align:center;margin:0.5em'>".__t("Prijavite se ili kreirajte nalog")."</h2>";
 
   return $message; //no-op
 }
@@ -146,7 +145,7 @@ add_filter( 'login_message', 'login_subtitle' );
 // We found "register" was confusing for users
 add_action( 'login_footer', 'change_login_text' );
 function change_login_text() {
-  $msg = __t('Create a new account');
+  $msg = __t('Kreirajte novi nalog');
   $htmltext = htmlspecialchars($msg, ENT_QUOTES);
   $attrtext = addslashes($msg);
   echo "<script type='text/javascript'>
@@ -173,17 +172,17 @@ add_filter('show_admin_bar', '__return_true');
 
 add_action('admin_bar_menu', 'pb_menu_items', 5);
 function pb_menu_items($wp_admin_bar) {
-  $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('progress'), 'title'=>__t('My Progress'), 'id'=>'up'));
+  $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('progress'), 'title'=>__t('Moj napredak'), 'id'=>'up'));
   if (!get_option('cscircles_hide_help'))
-    $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('mail'), 'title'=>__t('Mail'), 'id'=>'uppity'));
-  $wp_admin_bar->add_menu( array( 'id'=>'snappy', 'parent' => 'user-actions', 'title' => __t('Console (new window)'), 'href' => cscurl('console'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'snappie', 'parent' => 'user-actions', 'title' => __t('Visualizer (new window)'), 'href' => cscurl('visualize'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'crackle', 'parent' => 'user-actions', 'title' => __t('Resources (new window)'), 'href' => cscurl('resources'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'pop', 'parent' => 'user-actions', 'title' => __t('Contact Us (new window)'), 'href' => cscurl('contact'), "meta" => array("target" => "_blank")));
+    $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('mail'), 'title'=>__t('Komunikacija'), 'id'=>'uppity'));
+  $wp_admin_bar->add_menu( array( 'id'=>'snappy', 'parent' => 'user-actions', 'title' => __t('Konzola'), 'href' => cscurl('console'), "meta" => array("target" => "_blank")));
+  $wp_admin_bar->add_menu( array( 'id'=>'snappie', 'parent' => 'user-actions', 'title' => __t('Vizualizacija'), 'href' => cscurl('visualize'), "meta" => array("target" => "_blank")));
+  $wp_admin_bar->add_menu( array( 'id'=>'crackle', 'parent' => 'user-actions', 'title' => __t('Izvori'), 'href' => cscurl('resources'), "meta" => array("target" => "_blank")));
+  $wp_admin_bar->add_menu( array( 'id'=>'pop', 'parent' => 'user-actions', 'title' => __t('Kontakt'), 'href' => cscurl('contact'), "meta" => array("target" => "_blank")));
 
   if (!is_admin())
     $wp_admin_bar->add_menu( array( 'parent' => 'top-secondary', 'id' => 'totop', 
-				    'title' => '<img onclick="scrollToTop()" title="'.__t('scroll to top').'"'.
+				    'title' => '<img onclick="scrollToTop()" title="'.__t('vratite se na vrh strane').'"'.
 				    ' class="icon" src="'.UFILES . 'up.png"/>' ));
   
   global $wpdb;
@@ -207,7 +206,7 @@ function pb_menu_items($wp_admin_bar) {
         $url = cscurl('mail') . "?who=".$msg['ustudent']."&what=".$msg['problem']."&which=".$msg['ID'].'#m';
         
         $wp_admin_bar->add_menu( array( 'parent' => 'top-secondary', 'id' => 'mail', 'href' => $url,
-                                        'title' => '<img title="'.__t('goto oldest unanswered mail').'"'.
+                                        'title' => '<img title="'.__t('idi na najstariji neodgovoreni e-mail').'"'.
                                         'class="icon" src="'.UFILES . "mail-icon.png\"/>($count)" ));
       }
     }
@@ -218,27 +217,27 @@ function pb_menu_items($wp_admin_bar) {
     $wp_admin_bar->add_node( array(
 				   'id'        => 'admin-menu',
 				   'parent'    => 'top-secondary',
-				   'title'     => 'su',
+				   'title'     => 'admin',
 				   'meta'      => array(
 							'class'     => '',
-							'title'     => 'Admin Menu',
+							'title'     => 'Admin Meni',
 							),
 				   ) );
 
     $ap = get_page_by_title('Admin Pages');
 
     $more_links = array(
-			'Wordpress Dashboard' => get_bloginfo('wpurl') .'/wp-admin/index.php',
-			'Edit THIS Page' => get_edit_post_link());
+			'Wordpres Komandna Tabla' => get_bloginfo('wpurl') .'/wp-admin/index.php',
+			'Uredi ovu stranicu' => get_edit_post_link());
     if ($_SERVER['SERVER_NAME'] = 'cscircles.cemc.uwaterloo.ca') {
-      $more_links['MySQL Frontend'] = "/~atkong/pma/"; 
-      $more_links['[rebuild /export directory]'] = '/nav/?export=Y';
+     // $more_links['MySQL Frontend'] = "/~atkong/pma/"; 
+     // $more_links['[rebuild /export directory]'] = '/nav/?export=Y';
     }
     if ($ap != null) {
       //      $more_links['Daily submit-code usage'] = get_permalink($ap).'/profiling/?frequency=10&activity=submit-code';
-      $more_links['CS Circles Options'] = admin_url('admin.php?page=cscircles-options');
-      $more_links['Rebuild Databases'] = admin_url('admin.php?page=cscircles-makedb');
-      $more_links['[listing of admin-manual follows]'] = get_permalink($ap);
+      //$more_links['CS Circles Options'] = admin_url('admin.php?page=cscircles-options');
+      //$more_links['Rebuild Databases'] = admin_url('admin.php?page=cscircles-makedb');
+      //$more_links['[listing of admin-manual follows]'] = get_permalink($ap);
       
       $pages = get_pages( array('child_of' => $ap->ID, 'post_status'=>'publish,private'));
       foreach ($pages as $page) 
@@ -307,7 +306,7 @@ function wp_admin_bar_create_account_item_tweak( $wp_admin_bar ) {
       $wp_admin_bar->add_menu( array( 
                                      'id' => 'new-or-login', 
                                      'parent' => 'top-secondary', 
-                                     'title' => __t('<p>Create free account / login</p><p>to save your progress</p>'), 
+                                     'title' => __t('<p> Kreirajte besplatni nalog / Prijavite se </p><p>da sačuvate Vaš progres</p>'), 
                                      'href' => wp_login_url( $_SERVER['REQUEST_URI'] ), //
                                      'meta' => array( 'class' => 'new-or-login'))); 
     }
@@ -326,7 +325,7 @@ function tweak_admin_bar() {
   
   if ( $user_id ) { // if logged in
 
-    $howdy  = sprintf( __t("%s's menu"), $current_user->display_name );
+    $howdy  = sprintf( __t("%s"), $current_user->display_name );
 
     $wp_admin_bar->remove_node('user-info');
     $wp_admin_bar->remove_node('dashboard');
@@ -343,7 +342,7 @@ function tweak_admin_bar() {
     if ( is_admin() ) { // proper language redirect on admin pages
       $wp_admin_bar->add_node(array('id'=>'view-site', 'href' => cscurl('homepage')));
     }
-
+   
   }  
 }
 

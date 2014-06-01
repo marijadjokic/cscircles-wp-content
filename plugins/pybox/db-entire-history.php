@@ -15,19 +15,24 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
    $user = getSoft($req, "user", "");   
    $problem = getSoft($req, "problemhash", "");   
 
-   $resultdesc = array('y'=> __t('Did not crash.'), 
-		       'Y'=> __t('Correct!'), 
-		       'N'=> __t('Incorrect.'), 
-		       'E'=> __t('Internal error.'), 
-		       'S'=> __t('Saved.'),
-		       's'=> __t('Saved.'));
+   $resultdesc = array('y'=> __t('Program je izvršen bez grešaka.'), 
+		       'Y'=> __t('Tačno!'), 
+		       'N'=> __t('Netačno.'), 
+		       'E'=> __t('Unutrašnja greška.'), 
+		       'S'=> __t('Sačuvano.'),
+		       's'=> __t('Sačuvano.'));
    
    global $current_user;
+   //by Marija Djokic 
+   $currentuser=get_current_user();
+   $currentuserid= $current_user->ID;
+   $pagetitle=get_the_title();
+   //
    get_currentuserinfo();
    global $wpdb;
    
    if ( !is_user_logged_in() ) 
-     return __t("You must log in to view past submissions.");
+     return __t("Morate biti logovani da bi ste videli Vašu istoriju.");
 
    if ($user == "all") {
      $u = "all";
@@ -38,12 +43,12 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
    elseif ( userIsAdmin() || userIsAssistant() ) {
      $u = get_userdata($user);
      if ($u === false) 
-       return __t("User number not found.");
+       return __t("Korisnički broj nije pronađen.");
    }
    else {
      $u = get_userdata($user);
      if ($u === false)
-       return __t("User number not found.");
+       return __t("Korisnički broj nije pronađen.");
      if (strcasecmp(get_user_meta($user, 'pbguru', true) , $current_user->user_login)!=0) {
        return sprintf(__t("User %s does not have you as their guru."), $user);
      }
@@ -53,14 +58,15 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
      $db_query_info['viewuser'] = $user;
 
    // make an associative array indexed by slug
-   
-   $problemTable = $wpdb->get_results("SELECT slug, publicname, url FROM ".$wpdb->prefix."pb_problems WHERE slug IS NOT NULL AND lang = '".currLang2() ."'", 
+   //modified by Marija Djokic
+   $problemTable = $wpdb->get_results("SELECT slug, publicname, url FROM ".$wpdb->prefix."pb_problems WHERE slug IS NOT NULL", 
 				      OBJECT_K);
+  //
 
    $whereProblem = "1";
    if ($problem != '') {
      if (!array_key_exists($problem, $problemTable))
-       return sprintf(__t("Problem %s is unknown."), $problem);
+       return sprintf(__t("Problem %s je nepoznat."), $problem);
      $whereProblem = $wpdb->prepare("problem = %s", $problem);
    }
 
@@ -77,11 +83,20 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
    $whereStudent = NULL;
 
    if ($u == "all") {
-     $whereStudent = userIsAdmin() ? "1" : ("userid in " . getStudentList());
+     $whereStudent = !userIsAdmin() ? "1" : ("userid in " . getStudentList());
    }
    else {
      $uid = $u->ID;
+     //modified by Marija Djokic
+     if($currentuserid==$uid && $pagetitle=="Progres studenata")
+     {
+        $whereStudent = "userid in " . getStudentList();
+     }
+    else
+{
      $whereStudent = $wpdb->prepare("userid = %d", $uid);
+//
+}
    }     
 
    $count = 
@@ -91,7 +106,7 @@ FROM ".$wpdb->prefix."pb_submissions
 WHERE $whereStudent AND $whereProblem");
 
    if ($count==0) 
-     return __t("We do not have record of any submissions.");
+     return __t("Konekcija sa bazom je uspela, ali podaci nisu pronađeni.");
 
    $prep = "
 SELECT userid, ID, beginstamp, usercode, userinput, result, problem
@@ -107,17 +122,19 @@ ORDER BY $sortString ID DESC " . $limit;
      }
      $p = $r['problem'];
      if (array_key_exists($p, $problemTable)) 
+
        $cell[__t('problem')] = '<a class="open-same-window" href="' . $problemTable[$p]->url . '">'
 	 . $problemTable[$p]->publicname . '</a>';
      else
        $cell[__t('problem')] = $p;
-     $cell[__t('user code')] = preBox($r['usercode'], -1, -1);
-     $cell[__t('user input')] = $r['userinput'] == NULL ? '<i>'.__t('n/a').'</i>' : preBox($r['userinput'], -1, 100000);
+     $cell[__t('korisnički kod')] = preBox($r['usercode'], -1, -1);
+     $cell[__t('korisnički unos')] = $r['userinput'] == NULL ? '<i>'.__t('n/a').'</i>' : preBox($r['userinput'], -1, 100000);
      if ($p != 'visualizer' && $p != 'visualizer-iframe')
-       $cell[__t('result')] = getSoft($resultdesc, $r['result'], '???');
+       $cell[__t('rezultat')] = getSoft($resultdesc, $r['result'], '???');
      else
-       $cell[__t('result')] = '<i>n/a</i>';       
-     $cell[__t('time &amp; ID')] = str_replace(' ', '<br/>', $r['beginstamp']) . '<br/>#' . $r['ID'];
+       $cell[__t('rezultat')] = '<i>n/a</i>';       
+     $cell[__t('Vreme &amp; ID')] = str_replace(' ', '<br/>', $r['beginstamp']) . '<br/>#' . $r['ID'];
+
      $flexirows[] = array('id'=>$r['ID'], 'cell'=>$cell);
    }
    return array('total' => $count, 'rows' => $flexirows);

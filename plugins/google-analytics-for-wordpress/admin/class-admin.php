@@ -763,7 +763,7 @@ class GA_Admin extends Yoast_GA_Plugin_Admin {
 	function warning() {
 		$options = get_option( $this->optionname );
 		if ( !isset( $options['uastring'] ) || empty( $options['uastring'] ) ) {
-			echo "<div id='message' class='error'><p><strong>" . __( "Google Analytics is not active.", 'gawp' ) . "</strong> " . sprintf( __( "You must %sselect which Analytics Profile to track%s before it can work.", 'gawp' ), "<a href='" . $this->plugin_options_url() . "'>", "</a>" ) . "</p></div>";
+			//echo "<div id='message' class='error'><p><strong>" . __( "Google Analytics is not active.", 'gawp' ) . "</strong> " . sprintf( __( "You must %sselect which Analytics Profile to track%s before it can work.", 'gawp' ), "<a href='" . $this->plugin_options_url() . "'>", "</a>" ) . "</p></div>";
 		}
 	} // end warning()
 

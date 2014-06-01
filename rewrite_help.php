@@ -4,7 +4,7 @@
 
   // (1) uncomment this line
 
-  //   phpinfo();
+     phpinfo();
 
   // (2) visit this file in a browser, it will be somewhere like
   // http://your-site/cscircles/wp-content/rewrite_help.php

@@ -42,10 +42,10 @@ function showPrevNext() {
       echo ' title="'.$longname.'" href="'.get_page_link($row->id).'">'; 
     else 
       echo ' title="'.$longname.' '
-	.__t('(goes to top of current page)').'" onclick="scrollToTop()">';
+	.__t('(vratite se na vrh tekuće stranice)').'" onclick="scrollToTop()">';
     echo "<span class='buttn'>";
     if ($thisrow->ordering == $row->ordering-1) 
-      echo "<span class='nextlesson'>".__t("Next")."</span> ";
+      echo "<span class='nextlesson'>".__t("Sledeća lekcija")."</span> ";
     echo $longname;
     echo '</span></a>';
   }

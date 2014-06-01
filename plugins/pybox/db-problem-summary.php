@@ -22,11 +22,11 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
 
    global $wpdb;   
    $problem_table = $wpdb->prefix . "pb_problems";
+   //modified by Marija Djokic
    $problemname = $wpdb->get_var
      ($wpdb->prepare
-      ("SELECT publicname FROM $problem_table WHERE lang = '%s' AND slug = '%s'",
-       pll_current_language(), $problemslug));
-   
+      ("SELECT publicname FROM $problem_table WHERE lang = 'sr' AND slug = '%s'", $problemslug));
+   //
    if ($problemname == null) 
      return sprintf(__t("Problem %s not found (at least in current language)"), $problemslug);
 
@@ -43,13 +43,13 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
    $complete_table = $wpdb->prefix . "pb_completed";
 
    $count = $wpdb->get_var
-     (userIsAdmin() ?
+     (!userIsAdmin() ?
       ("SELECT count(1) FROM $user_table")
       : $wpdb->prepare
       ("SELECT count(1) FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s", 'pbguru', $ulogin));
 
    $students = $wpdb->get_results
-     (userIsAdmin() ?
+     (!userIsAdmin() ?
       ("SELECT ID FROM $user_table $limit")
       : $wpdb->prepare
       ("SELECT user_id AS ID FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s $limit", 'pbguru', $ulogin));
@@ -68,15 +68,15 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
      $cell['ID'] = $sid;
      $cell['info'] = userString($sid);
      if ($sdata != null) {
-       $cell[__t('latest correct')] = prebox($sdata->usercode);
-       $cell[__t('last time')] = $sdata->beginstamp;
-       $cell[__t('first time')] = $wpdb->get_var
+       $cell[__t('poslednje tačno')] = prebox($sdata->usercode);
+       $cell[__t('prvi put')] = $sdata->beginstamp;
+       $cell[__t('poslednji put')] = $wpdb->get_var
 	 ($wpdb->prepare("SELECT time FROM $complete_table WHERE userid=$sid and problem='%s'", $problemslug));
      }
      else {
-       $cell[__t('latest correct')] = '<i>n/a</i>';
-       $cell[__t('last time')] = '<i>n/a</i>';
-       $cell[__t('first time')] = '<i>n/a</i>';
+       $cell[__t('poslednje tačno')] = '<i>n/a</i>';
+       $cell[__t('prvi put')] = '<i>n/a</i>';
+       $cell[__t('poslednji put')] = '<i>n/a</i>';
      }
      $flexirows[] = array('id'=>$sid, 'cell'=>$cell);
    }

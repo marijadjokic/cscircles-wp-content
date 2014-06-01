@@ -8,7 +8,6 @@
  */
 
 $niceurl = '<pre>'."\n".htmlspecialchars($_SERVER["REQUEST_URI"]).'</pre>';
-
 get_header(); ?>
 
 	<div id="primary">
@@ -16,13 +15,13 @@ get_header(); ?>
 
 			<article id="post-0" class="post error404 not-found">
 				<header class="entry-header">
-					<h1 class="entry-title"><?php echo __t( 'Error 404. Not enough internets.' ); ?></h1>
+					<h1 class="entry-title"><?php echo __t( 'Greška 404.' ); ?></h1>
 				</header>
 
 				<div class="entry-content">
 					<p>
-<?php      echo sprintf(__t("We cannot find anything at the address %s"), $niceurl)." ".
-	   sprintf(__t('Try a different address, a search, or <a %1$s>contact us</a> if the website sent you here via a broken link.'), 'href="'.cscurl('contact').'"');
+<?php      echo sprintf(__t("Ne možemo ništa pronaći na adresi %s"), $niceurl)." ".
+	   sprintf(__t('Probajte sa drugom adresom, ili <a %1$s>nas kontaktirajte</a>.'), 'href="'.cscurl('contact').'"');
 ?></p>
 
 <?php echo get_search_form(); 

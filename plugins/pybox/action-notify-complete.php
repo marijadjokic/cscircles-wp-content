@@ -9,6 +9,9 @@ global $current_user;
 get_currentuserinfo();
 global $wpdb;
 
+
+
+  $logid = $wpdb->insert_id;
 if ( is_user_logged_in() ) {
 
   $uid = $current_user->ID;

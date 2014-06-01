@@ -517,10 +517,11 @@ header > a > div.toppictureholder {
 
 #colophon .cemc.logo {
     float: left; 
-    margin-left: 25px;
-    background-image: url(images/cemc_logo.gif);
-    width: 73px;
-    height: 64px;
+    margin-left: 40px;
+    background-image: url(images/imi_logo.jpg);
+    opacity:0,4;
+    width: 60px;
+    height: 73px;
     margin-top: 5px;
 }
 

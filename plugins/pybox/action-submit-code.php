@@ -209,11 +209,11 @@ function optionsAndDefaults() {
 	       "allowinput" => "N",            # is input allowed?
 	       "usertni" => FALSE,             # user tests (not user input)?
 	       
-	       // etc //
+	       // etc//
 	       "haltonwrong" => "Y",           # halt after failed sub-problem?
 	       "desirederror" => FALSE,        # want user to cause error?
-	       "nolog" => FALSE,               # don't generate DB entry...
-	                                       # ...e.g for pyExample, scramble
+	       "nolog" => "Y",               # don't generate DB entry...
+	                                       # ...e.g for pyExample, scramble; modified by Marija Djokic
 	       );
 }
 
@@ -319,10 +319,10 @@ function outputDescription($pass, $args) {
   if ($pass === TRUE) {
     if (($showoutput=='Y' || $showexpected=='Y') && $stdout != "") {
       if ($grader == "*nograder*" || $grader == '*inplace*')
-	return __t("Program gave the following output:") 
+	return __t("Program daje sledeći izlaz:") 
 	  . preBox($stdout, $stdoutlen);
       else
-	return __t("Program gave the following correct output:") 
+	return __t("Program daje sledeći tačan izlaz:") 
 	  . preBox($stdout, $stdoutlen);
     }
     else
@@ -333,9 +333,9 @@ function outputDescription($pass, $args) {
 			       (!$ok || $hideemptyoutput == 'Y')))
       return "";
     elseif ($stdoutlen == 0)
-      return __t("Program printed no output.")."<br>";
+      return __t("Program ne štampa izlaz.")."<br>";
     else
-      return __t("Program gave the following output:") 
+      return __t("Program daje sledeći izlaz:") 
 	. preBox($stdout, $stdoutlen);
   }
 
@@ -343,18 +343,18 @@ function outputDescription($pass, $args) {
   if ($showoutput != 'Y')
     $part1 = "";
   elseif ($stdoutlen == 0) {
-    $part1 = __t("Program printed no output.");
+    $part1 = __t("Program ne štampa izlaz.");
     if ($requiredStdout != "") {
       $part1 .= " <i>"
-	. __t("(Did you forget to use </i><code>print</code><i>?)")."</i>";
+	. __t("(Da li ste zaboravili da koristite </i><code>print</code><i>?)")."</i>";
     }
     $part1 .= "<br/>";
   }
   else
-    $part1 = __t("Program output:") . preBox($stdout, $stdoutlen);
+    $part1 = __t("Izlaz programa:") . preBox($stdout, $stdoutlen);
 
   if ($showexpected == 'Y' && $requiredStdout != "")
-    $part2 = __t("Expected this correct output:").preBox($requiredStdout);
+    $part2 = __t("Očekivan tačan izlaz:").preBox($requiredStdout);
   else
     $part2 = "";
   
@@ -533,12 +533,12 @@ _user_stdout.close()
     $m .= $testDescription;
 
   if (!$inputInUse && $inplace && trim($outdata['graderpre']) != '')
-    $m .= '<i>'.__t('Before running your code:').'</i> ' 
+    $m .= '<i>'.__t('Pre nego što pokrente Vaš kod:').'</i> ' 
       . $outdata['graderpre'] . '<br/>';
 
   if ($showinput=="Y" && !$inputInUse && !$noInput &&
       ($hideemptyinput=="N" || $outdata['stdincopy']!=""))
-    $m .= __t("Input:") . preBox($outdata['stdincopy']);
+    $m .= __t("Ulaz:") . preBox($outdata['stdincopy']);
 
   global $submit_code_stderr, $submit_code_errnice;
   $submit_code_stderr = $stderr;
@@ -551,13 +551,13 @@ _user_stdout.close()
   if ($stderr=='')
     $errnice = '';
   else
-    $errnice = '<p>'.__t('Error messages: ') . preBoxHinted(stderrNiceify($stderr), $stderrlen) . '</p>';
+    $errnice = '<p>'.__t('Poruke o greškama: ') . preBoxHinted(stderrNiceify($stderr), $stderrlen) . '</p>';
 
   if ($ok) 
-    $m .= "<p>".__t('Program executed without crashing.')."</p>";
+    $m .= "<p>".__t('Program je izvršen bez grešaka.')."</p>";
   elseif (firstLine($safeexecOut) == 
 	  'Command exited with non-zero status (1)') 
-    $m .= "<p>".__t("Program crashed.")."</p>";
+    $m .= "<p>".__t("Program nije uspešno izvršen.")."</p>";
   else
     $m .= "<p>".__t("Program crashed &mdash; ") 
       . firstLine($safeexecOut) . ".</p>";
@@ -677,14 +677,14 @@ function saveCompletion() {
 function mpass($message) {
   global $facultative, $appendix; 
   if (!$facultative) saveCompletion(); 
-  return ($facultative?"y":"Y<b>".__t("Success!")."</b><br/>") . $message . $appendix;
+  return ($facultative?"y":"Y<b>".__t("Tačno!")."</b><br/>") . $message . $appendix;
 } //helper
 
 function mfail($message) {
   global $facultative, $appendix;
   return ($facultative?"N":"N<b>"
-	  .__t("Did not pass tests. "
-	       . "Please check details below and try again.")."</b><br/>") 
+	  .__t("Zadatak nije izvršen. "
+	       . "Molimo Vas da proverite detalje iznad i pokušate ponovo.")."</b><br/>") 
     . $message . $appendix;
 } //helper
 
@@ -700,8 +700,8 @@ function merror($message, $errmsg, $suppress = -1) {
 
 function msave() {
   global $userid;
-  return "S".(($userid==-1)?__t("You must log in to save data.")
-	      :__t("Program saved."));
+  return "S".(($userid==-1)?__t("Morate biti prijavljeni da bi ste sačuvali podatke.")
+	      :__t("Program je sačuvan."));
 }
 
 // the main part of the work
@@ -813,7 +813,7 @@ SELECT graderArgs from ".$wpdb->prefix."pb_problems WHERE hash = %s", $hash));
   $slug = getSoft($problemArgs, 'slug', NULL);
 
   //most of submit logging preparation. quitting earlier => not logged in DB
-  if ($log_it and !isSoft($problemOptions, "nolog", "Y")) {
+  if ($log_it and isSoft($problemOptions, "nolog", "Y")) {
     $postmisc = $post;
     unset($postmisc['usercode' . $id]);
     unset($postmisc['userinput']);
@@ -983,8 +983,11 @@ function submit_code_main($post, $_log_it) {
     if ($logRow != FALSE) {
       $logRow['result'] = $result[0];
       $table_name = $wpdb->prefix . "pb_submissions";
+    if ($logRow['problem'] != "console")
+{
       $wpdb->insert( $table_name, $logRow);
       $crossref = $wpdb->insert_id;
+}
     }
 
     $meta['ipaddress'] = $_SERVER['REMOTE_ADDR'];

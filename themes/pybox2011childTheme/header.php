@@ -100,8 +100,8 @@ if (isset($post)) {
 ?></span></div>
 
 	<div style="width: 100%; background: black;  height:40px;">
-  <a href="http://www.uwaterloo.ca"><img src="<?php echo UFILES . __t('wordmark-uw.gif');?>" style="margin: 0px;"/></a>
-<a href="http://cemc.uwaterloo.ca"><img src="<?php echo UFILES . __t('wordmark-cemc.png');?>" style="margin: 0px; position: absolute; right: 0px;"></a>
+  <a href="http://www.pmf.kg.ac.rs" target="_blank"><img src="<?php echo UFILES . __t('wordmark-uw.gif');?>" style="margin: 0px;"/></a>
+<a href="http://imi.pmf.kg.ac.rs" target="_blank"><img src="<?php echo UFILES . __t('wordmark-cemc.png');?>" style="margin: 0px; position: absolute; right: 0px;"></a>
 	  </div>
 	<header id="branding" role="banner">
 <?php
@@ -115,7 +115,7 @@ if (WP_HOME != "http://cscircles.cemc.uwaterloo.ca/" && !get_option("cscircles_h
     // Check to see if the header image has been removed
 $header_image = get_header_image();
 if ( ! empty( $header_image ) ) : 
-  echo '<a href="'.site_url('ack/').'">'; /* dave feb 10 2012 to avoid jumpiness */
+ //echo '<a href="'.site_url('ack/').'">'; /* dave feb 10 2012 to avoid jumpiness */
 
 // The header image
 // Check if this is a post or page, if it has a thumbnail, and if it's a big one

@@ -1,5 +1,6 @@
 $ = jQuery;
 
+
 function __t(s) {
     if (translationArray == null) return s;
     return translationArray[s];
@@ -21,13 +22,13 @@ function stylePybox(id, modeCharacter) {
 }
 
 function testingSI(fac, tni) {
-    if (fac) return __t("Hide input box");
-    return __t("Go back to grading");
+    if (fac) return __t("Sakriti polje za unos");
+    return __t("Vratiti se na ocenjivanje");
 }
 function gradingSI(fac, tni) { 
-    if (fac) return __t("Enter input");
-    if (tni == "Y") return __t("Enter test statements");
-    return __t("Enter test input");
+    if (fac) return __t("Unesite ulazne podatke");
+    if (tni == "Y") return __t("Unesite izveštaje za testiranje");
+    return __t("Unesite test ulaze");
 }
 
 function pbInputSwitch(id, tni) {
@@ -39,7 +40,7 @@ function pbInputSwitch(id, tni) {
 	$('#inputInUse'+id).val('Y');
     }
     else {
-	setCommandLabel(id, 'submit', __t("Run program"));
+	setCommandLabel(id, 'submit', __t("Izvršiti program"));
 	setCommandLabel(id, 'switch', gradingSI(fac, tni));
 	$('#inputInUse'+id).val('N');
     }
@@ -54,7 +55,7 @@ function pbSetText(id, txt) { //should not be called on scrambles.
 }
 
 function pbGetText(id) {
-    if ($('#pybox'+id).hasClass('scramble')) 
+    if ($('#pybox'+id).hasClass('scramble') || $('#pybox'+id).hasClass('multiscramble')) 
 	return $('#pyscramble'+id)
 	.sortable()
 	.children()
@@ -95,7 +96,7 @@ function pbFormSubmit(event) {
 
   $('#pybox'+id+' .bumpit').removeClass('bumpit');
     
-    $('#pbresults'+id).html("<p>"+__t("Running...")+'</p>');
+    $('#pbresults'+id).html("<p>"+__t("Izvršavanje...")+'</p>');
     $.ajax({
 	type: "POST",
 	url: SUBMITURL,
@@ -113,10 +114,10 @@ function pbFormSubmit(event) {
 	    $('#submit'+id).attr('disabled', false);
 	    stylePybox(id, 'E');
 	    if (textStatus == "timeout") {
-		alert(__t('timed out!') + timeoutMS);
+		alert(__t('Vreme je isteklo!') + timeoutMS);
 	    }
 	   
- 	    $('#pbresults'+id).html(__t("Could not grade program because communication to the server was not possible. Ajax information: ")+xhr.statusText+" "+xhr.status+" "+thrownError);
+ 	    $('#pbresults'+id).html(__t("Nije moguće program jer je komunikaicja sa serverom onemogućena. AJAX informacija: ")+xhr.statusText+" "+xhr.status+" "+thrownError);
         }
     });
     event.preventDefault(); 
@@ -124,7 +125,7 @@ function pbFormSubmit(event) {
 
 function happyFace(id) {
     $("#pybox" + id + " .pycheck").attr({
-	'title':__t('You have completed this problem at least once.'),
+	'title':__t('Izvršili ste ovaj problem najmanje jednom.'),
 	'src':FILESURL+'checked.png'
     });
 }
@@ -135,7 +136,7 @@ function setCompleted(name) {
 	    type: "POST",
 	    url: SETCOMPLETEDURL,
 	    data: {"problem":name},
-	    error: function() {alert(__t("Warning: unable to talk to server. Could not set 'completed' status for this problem."))}
+	    error: function() {alert(__t("UPOZORENJE: nemoguća komunikacija sa serverom. Nije moguće postaviti status 'završen' za ovaj problem."))}
 	});
     }
 }
@@ -150,22 +151,22 @@ function sendMessage(id, slug) {
     message = $("#pybox"+id+" .helpInner textarea").val();
     code = pbGetText(id);
     if (recipient==0) {
-	alert(__t('Please select a valid recipient for the message. If you are working with a teacher or friend, select them as a guru on your Profile (available within the user menu, in the top right corner of the page).'));
+	alert(__t('Molimo Vas odaberite važećeg primaoca za poruku. Ako radite sa mentorom ili prijateljem, odaberite ga kao mentora na Vašem profilu (vidljivo na korsinčkom meniju, u gornjem desnom uglu strane).'));
     }
     else if (message.replace('\s', '')=='') {
-	alert(__t('Please enter a non-empty message.'));
+	alert(__t('Molimo Vas unesite poruku sa sadržajem.'));
     }
     else if (code.replace('\s', '')=='') {
-	alert(__t('The code box is empty. It should instead contain your best partial solution so far.'));
+	alert(__t('Polje za unos je prazno. Ono treba da sadrži deo Vašeg najboljeg rešenja do sada.'));
     }
     else {
 	$.ajax({
 	    type: "POST",
 	    url : MESSAGEURL,
 	    data: {"source":1,"slug":slug,"recipient":recipient,"message":message,"code":code},
-	    error: function() {alert(__t("Unable to process 'send message' request. You might have lost your internet connection."));}
+	    error: function() {alert(__t("Nemoguće je izvršiti proces slanja poruke. Možda je izgubljena konekcija sa internetom."));}
 	});
-	alert(__t("Your message was sent."));
+	alert(__t("Vaša poruka je poslata."));
 	helpClick(id);
     }
 }
@@ -182,7 +183,7 @@ function mailReply(id, slug) {
     $('#mailform .recipient').each(function(i, item) {r = $(item);});
     if (r != null) {
 	if (r.val()==0) {
-	    alert(__t('Please select a valid recipient for the message. If you are working with a teacher or friend, select them as a guru on your Profile (available within the user menu, in the top right corner of the page).'));
+	    alert(__t('Molimo Vas odaberite važećeg primaoca za poruku. Ako radite sa mentorom ili prijateljem, odaberite ga kao mentora na Vašem profilu (vidljivo na korsinčkom meniju, u gornjem desnom uglu strane).'));
 	    return;
 	}
 	thedata['recipient'] = r.val();
@@ -191,19 +192,30 @@ function mailReply(id, slug) {
 	type: "POST",
 	url : MESSAGEURL,
 	data: thedata,
-	error: function() {alert(__t("Unable to process 'send message' request. You might have lost your internet connection."));},
+	error: function() {alert(__t("Nemoguće je izvršiti proces slanja poruke. Možda je izgubljena konekcija sa internetom."));},
 	success: function(data) {if (data == '#') location.reload(true); else window.location = MAILURL + '?who='+id+"&what="+slug+"&which="+data+"#m";}
     });
-    alert(noreplyval?__t("Marking all messages from this student about this problem as answered.")
-	  :__t("Your message was sent."));
+    alert(noreplyval?__t("Označite sve poruke ovog studenta u vezi ovog probelema kao rešene.")
+	  :__t("Vaša poruka je poslata."));
 }
 
 // three types of short answer question: short answer, multiple choice, scramble
 // all are client-side exercises not requiring execution on the server
-function pbNoncodeShowResults(id, correct) { 
+function pbNoncodeShowResults(id, correct, answer) { 
+
     name = $('#pybox'+id).find('input[name="slug"]').val();
     stylePybox(id, correct?"Y":"N");
-    $('#pybox'+id+' .pbresults').html((!correct)?__t("Incorrect, try again."):$('#pybox'+id+' .epilogue').html());
+    $('#pybox'+id+' .pbresults').html((!correct)?__t("Netačno, pokušajte ponovo."):$('#pybox'+id+' .epilogue').html());
+//added by Marija Djokic    
+if (name != 'NULL') {
+	$.ajax({
+	    type: "POST",
+	    url: "http://147.91.205.71/wordpress/wp-content/plugins/pybox/action-submission-complete.php",
+	    data: {"problem":name, "usercode":answer, "result": correct},
+	    error: function() {alert(__t("UPOZORENJE: nemoguća komunikacija sa serverom. Nije moguće postaviti status 'završen' za ovaj problem."))}
+	});
+    }
+//
     if (correct) {
 	happyFace(id);
 	setCompleted(name);
@@ -220,22 +232,30 @@ function pbShortCheck(id) {
     { ok = parseFloat(ans) == parseFloat(lecorrect); }
     else
     { ok = ans == lecorrect;}
-    pbNoncodeShowResults(id, ok);
+//modifided by Marija Djokic
+    pbNoncodeShowResults(id, ok, ans);
+//
 }
 
 function pbMultiCheck(id) {
     ok = (document.getElementById("pyselect"+id).value == 'r');
-    pbNoncodeShowResults(id, ok);
+    pbNoncodeShowResults(id, ok, document.getElementById("pyselect"+id).options[document.getElementById("pyselect"+id).selectedIndex].text);
 }
 
 function pbMultiscrambleCheck(id) { //NB: does not yet work if there are multiple identical lines
     lines = $('#pybox'+id+' li.pyscramble');
+    var values={};
+    //pbGetText(id);  
+    //alert(values['usercode'+id]);
+    values['usercode'+id]=pbGetText(id);
     len = lines.size();
     name = $('#pybox'+id+' input[name="name"]').val();
     x = lines.map(function(){x = $(this).attr('id'); return x.substr(x.lastIndexOf('_')+1);}).get().join();
     y = '0';
     for (i=1; i<len; i++) y = y + ',' + i;
-    pbNoncodeShowResults(id, x == y);
+//modifided by Marija Djokic
+    pbNoncodeShowResults(id, x == y,values['usercode'+id]);
+//
 }
 
 // end of client-side-evaluated exercise types.
@@ -307,11 +327,22 @@ function pbToggleCodeMirror(id) {
 }
 
 function pbConsoleCopy(id) {
-    var code = pbGetText(id);
-    var ecode = encodeURIComponent(code);
-    var xurl = CONSOLEURL+"?consolecode="+ecode;
-    window.open(xurl);
+   var code = pbGetText(id);
+   var ecode =encodeURIComponent(code);
+   var xurl = CONSOLEURL+"?consolecode="+ecode;
+   //window.open(xurl);
+//added by Marija Djokic
+   popup(ecode);
 }
+
+function popup(ecodep)
+{
+$.ajax("http://147.91.205.71/wordpress/wp-content/plugins/pybox/action-get-console.php?consolecode="+ecodep,
+{success: function(reply) {
+AnythingPopup_OpenForm("AnythingPopup_BoxContainer1","AnythingPopup_BoxContainerBody1","AnythingPopup_BoxContainerFooter1","700","400");
+$("#AnythingPopup_BoxContainerBody1").html(reply);}});
+}
+//
 
 function pbVisualize(id, tni) {
     
@@ -326,7 +357,7 @@ function pbVisualize(id, tni) {
     if ($('#inputInUse'+id).val()=='Y') {
 	extrainput = $('#pybox'+id+' textarea.pyboxInput').val();
 	if (tni == 'Y') {
-	    usercode += '\n# '+__t('end of main program')+'\n\n# '+__t('start of tests')+'\n' + extrainput;
+	    usercode += '\n# '+__t('kraj glavnog programa')+'\n\n# '+__t('početak testiranja')+'\n' + extrainput;
 	}
 	else {
 	    params["raw_input"] = extrainput;
@@ -358,7 +389,7 @@ function pbSelectChange(event) {
     id = getID(event);
     act = $('#pbSelect'+id+' :selected').attr('data-pbonclick');
     eval(act);
-    $('#pbSelect'+id).val(__t('More actions...')).blur();
+    $('#pbSelect'+id).val(__t('Više akcija...')).blur();
 }
 
 function stayHere(event) {
@@ -367,7 +398,7 @@ function stayHere(event) {
 	($(event.target).hasClass('open-same-window')
 	 || $(event.target).parents('.open-same-window').length > 0)
        )
-	$(event.target).attr('target', '_blank');
+	$(event.target).attr('target', '_self');
    // console.log('A');
     return true;
 }
@@ -445,7 +476,7 @@ function pyflex(options) {
       url:options['url'],
       data:$.param('dbparams' in options ? options['dbparams'] : []),
       success:function(data){pyflexSuccess(options, data);},
-      failure:function(){$("#"+options['id']).html(__t('Error: could not connect to database.'));}
+      failure:function(){$("#"+options['id']).html(__t('Greška: ne može se uspostaviti konekcija sa bazom.'));}
      });
 }
 function pyflexSuccess(options, data) {
@@ -453,8 +484,8 @@ function pyflexSuccess(options, data) {
     //console.log('b');
     if (!(data instanceof Object) || !("rows" in data) || data["rows"].length==0) {
 	hflexhelp[options['id']] = options;
-	msg = (!(data instanceof Object) || !("rows" in data)) ? data : __t('The database connected but found no data.'); 
-	info = "<a onclick='pyflex(hflexhelp[\""+options['id']+"\"])'>"+__t("Click to try again.")+"</a>";
+	msg = (!(data instanceof Object) || !("rows" in data)) ? data : __t('Konekcija sa bazom je uspela, ali podaci nisu pronađeni.'); 
+	info = "<a onclick='pyflex(hflexhelp[\""+options['id']+"\"])'>"+__t("Pokušajte ponovo.")+"</a>";
 	$('#'+options['id']).html('<span class="pyflexerror">' + msg + ' ' + info + '</span>');
 	//alert(msg);
 	return;
@@ -514,9 +545,9 @@ function historyClick(id,thename) {
 	pyflex({'id':'pbhistory'+id, 'url':url, 'dbparams':{'p': thename}, 'flparams':{'showCloseBtn':true}});
     }
     if ($('#pbhistory'+id).is(":hidden")) 
-	setCommandLabel(id, 'history', __t('History'));
+	setCommandLabel(id, 'history', __t('Istorija'));
     else {
-	setCommandLabel(id, 'history', __t('Hide history'));
+	setCommandLabel(id, 'history', __t('Sakriti istoriju'));
 	if (!createNow) hflex['pbhistory'+id].flexReload();
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 function cscircles_makedb_page() {
-
+ 
   echo "<div class='wrap'>
 <h2>Rebuild CS Circles Databases</h2>
 <div>This page will rebuild the lesson database and the problem database. 
@@ -31,6 +31,7 @@ on the lesson slugs; contact us for help if needed.)</div>";
     else {
       // use default language
       $lang = currLang2();
+
     }
     if ($m >= 1) 
       $lessons[] = array('number'=>$matches[1].$matches[2], 
@@ -39,13 +40,17 @@ on the lesson slugs; contact us for help if needed.)</div>";
 			 'minor'=>$matches[2], 
 			 'id'=>$page->ID,
 			 'lang'=>$lang); 
-    elseif ((class_exists('PLL_Base') && (get_page_by_path('console')->ID == pll_get_post($page->ID, 'en')))
+    //modified by Marija Djokic
+    elseif ((class_exists('PLL_Base') && (get_page_by_path('console')->ID == pll_get_post($page->ID, 'sr')))
             || get_page_by_path('console')->ID == $page->ID)
-      $lessons[] = array('id'=>$page->ID, 'number'=>NULL, 'lang'=>$lang);
+      $lessons[] = array('id'=>$page->ID, 'number'=>NULL, 'lang'=>$lang); 
+    //
     // go through the console page too, mainly to set up the right url in history grids,
     // it does not get added to pb_lessons but its contents do get added to pb_problems
-  }
 
+  }
+   
+  echo $lessons['lang'];
   function cmp($l1, $l2) {
     $c = strcmp($l1['lang'], $l2['lang']);
     if ($c != 0) {

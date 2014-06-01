@@ -68,11 +68,11 @@ $found = preg_match("_\[authorship.*info=\\s*(.*)/(authorship)?\]_s", $content, 
 if ($found > 0)
   $authorshipmsg = 'The <a href="'.$page_src_url.'">containing page source</a> has authorship info: <i>'.$match[1].'</i>';
  else
-   $authorshipmsg = 'See also the <a href="'.$page_src_url.'">containing page source</a>.';
+   $authorshipmsg = 'Videti <a href="'.$page_src_url.'">izvorni kod stranice</a>.';
 
 ?>
 <html>
-The following shortcode is a definition for the example or exercise that you clicked on.
+Sledeći kod je definicija za primer ili vežbu na koju ste kliknuli.
 <br>
 <?php echo open_source_preamble(); ?>
 <br>
@@ -80,5 +80,5 @@ The following shortcode is a definition for the example or exercise that you cli
 <hr>
 <pre style="white-space:pre-wrap"><?php echo $r ?></pre>
 <hr>
-Click <a href="<?php echo $row['url']; ?>">here</a> to view this shortcode in action.
+Kliknite <a href="<?php echo $row['url']; ?>">ovde</a> da bi ste videli ovaj kod u akciji.
 </html>

@@ -27,17 +27,17 @@ function send($problem_info, $from, $to, $student, $slug, $body, $noreply) {
   $mailref = $wpdb->insert_id;
 
   if (userIsAdmin() || userIsAssistant())
-    $mFrom = '"'. __t("CS Circles Assistant") . '" <'.CSCIRCLES_BOUNCE_EMAIL.'>';
+    $mFrom = '"'. __t("IMI Python elearning") . '"<'.CSCIRCLES_BOUNCE_EMAIL.'>';
   else 
     $mFrom = '"' . $current_user->user_login . '" <' . $current_user->user_email . '>';
 
-  $subject = __t('CS Circles') .' - '. __t('message about') . ' ' . $problem_info['publicname'];
+  $subject = __t('IMI Python elearning') .' - '. __t('poruka o problemu') . ' ' . $problem_info['publicname'];
   
   $contents = $body."\n===\n";
-  $contents .= __t("To send a reply message, please visit")."\n";
+  $contents .= __t("Da biste odgovroili na poruku molimo Vas posetite")."\n";
   $contents .= cscurl('mail') . "?who=$student&what=$slug&which=$mailref#m\n";
   $contents .= __t("Problem URL:")." " . $problem_info['url'] . "\n";
-  $contents .= "[".__t("Sent by CS Circles")." ".cscurl("homepage")."]";
+  $contents .= "[".__t("IMI Python elearning")." ".cscurl("homepage")."]";
 
   if ($to == 0) {
     // same fallback as admin-options.php
@@ -57,7 +57,7 @@ function send($problem_info, $from, $to, $student, $slug, $body, $noreply) {
     pb_mail($mFrom, 
 	    $current_user->user_email, 
 	    __t("SENT:")." " . $subject, 
-	    (sprintf(__t("THIS IS A COPY of a message you sent to %s."), $to_desc) .
+	    (sprintf(__t("OVO JE KOPIJA PORUKE koju ste poslali studentu %s."), $to_desc) .
 	     "\n\n" . $contents)
 	    );
   }
@@ -81,8 +81,10 @@ get_currentuserinfo();
 $user_email = $current_user->user_email;
 
 global $wpdb;
-$problem_info = $wpdb->get_row($wpdb->prepare('SELECT * from '.$wpdb->prefix.'pb_problems where slug = %s and lang = %s', 
-					      $slug, pll_current_language()), ARRAY_A);
+//modified by Marija Djokic
+$problem_info = $wpdb->get_row($wpdb->prepare('SELECT * from '.$wpdb->prefix.'pb_problems where slug = %s', 
+					      $slug), ARRAY_A);
+//
 
 if ($problem_info === NULL) {
   header('HTTP/1.1 404 Not Found');

@@ -25,22 +25,22 @@ showPrevNext();
 
 echo pageSourceWidget();
 ?>
-
+<!-- modifided by Marija Djokic  -->
   <div id="site-generator">
-  <a href="http://cemc.uwaterloo.ca"><div class="cemc logo"></div></a>
-  <a href='http://cemc.uwaterloo.ca/copyright.html'>
+  <a href="http://imi.pmf.kg.ac.rs"><div class="cemc logo"></div></a>
+ <!-- <a href='http://cemc.uwaterloo.ca/copyright.html'> -->
 <img src='/wp-content/plugins/pybox/files/cc.png' style='height:0.8em; vertical-align: baseline; top: 0px' />
-  <?php echo sprintf("2010&ndash;".strftime("%G").".</a> " );
-echo sprintf(    __t('Computer Science Circles is a free service of the <a %1$s>Centre for Education in Mathematics and Computing</a> at the <a %2$s>University of Waterloo</a>. <br> Total number of exercises completed by all users: %3$s'), 'href="http://www.cemc.uwaterloo.ca/"', 'href="http://www.uwaterloo.ca"', '<b>'.allSolvedCount().'</b>'); ?>
+  <?php echo sprintf("2013&ndash;".strftime("%G").".</a> " );
+echo sprintf(    __t('Naš sajt je besplatan servis <a %1$s target="_blank">Prirodno-matematičkog fakulteta</a> <a %2$s target="_blank">Univerziteta u Kragujevcu</a>. <br> Ukupan broj vežbi izvršen od strane svih korisnika je: %3$s'), 'href="http://www.pmf.kg.ac.rs"', 'href="http://www.kg.ac.rs"', '<b>'.allSolvedCount().'</b>'); ?>
 
    <div id="departmentaddress">
-  <?php echo __t('CEMC');?> |
-  <?php echo __t('University of Waterloo, MC 5104');?> |
-  <?php echo __t('200 University Avenue West');?> |
-  <?php echo __t('Waterloo, Ontario, Canada N2L 3G1');?> |
-  <?php echo __t('Phone: 519 888 4808');?> |
-  <a href="<?php echo cscurl('contact'); ?>"><?php 
-  echo __t('contact us');?></a>
+  <?php echo __t('PMF');?> |
+  <?php echo __t('Univerzitet u Kragujevcu');?> |
+  <?php echo __t('Radoja Domanovića 12');?> |
+  <?php echo __t('34 000, Kragujevac');?> |
+  <?php echo __t('Telefon: 034/336-223');?> |
+  <a href="<?php echo cscurl('kontakt'); ?>"><?php 
+  echo __t('Kontaktirajte nas');?></a>
    </div>
 
   </div> 

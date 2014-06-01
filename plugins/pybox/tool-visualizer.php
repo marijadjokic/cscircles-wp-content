@@ -8,9 +8,11 @@ function visualizer_tr() {
   if ($homeurl != '') $homeurl .= '/';
   if (! preg_match("@^".preg_quote($homeurl)."visualize(/|$)@", $url, $matchdummy))
     return;
-
-  $wp_query->is_404 = false;
+  //modifided by Marija Djokic
+  global $wp_query;
   header("HTTP/1.1 200 OK");
+  $wp_query->is_404 = false;
+  //
   include("visualize.php-include");
   exit;
 }

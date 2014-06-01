@@ -97,15 +97,15 @@ function dbMail($limit, $sortname, $sortorder, $req = NULL) {
    $flexirows = array();
    foreach ($wpdb->get_results( $prep, ARRAY_A ) as $r) {
      $cell = array();
-     $cell[__t('from')] = nicefiedUsername($r['ufrom']);
-     $cell[__t('to')] = nicefiedUsername($r['uto']);
+     $cell[__t('od koga')] = nicefiedUsername($r['ufrom']);
+     $cell[__t('kome')] = nicefiedUsername($r['uto']);
      $url =  cscurl('mail') . "?who=".$r['ustudent']."&what=".$r['problem']."&which=".$r['ID']."#m\n";
-     $cell[__t('when')] = str_replace(' ', '<br>', $r['time']);
+     $cell[__t('kada')] = str_replace(' ', '<br>', $r['time']);
      if ($what=='')
        $cell[__t('problem')] = $r['problem'];
      if ($unans == '')
-       $cell[__t('replied?')] = ($r['unanswered'] == 1) ? __t('no') : __t('yes');
-     $cell[__t('message')] = "<a href='$url'>".preBox($r['body'])."</a>";
+       $cell[__t('odgovor na poruku')] = ($r['unanswered'] == 1) ? __t('ne') : __t('da');
+     $cell[__t('sadržaj poruke')] = "<a href='$url'>".preBox($r['body'])."</a>";
      $flexirows[] = array('id'=>$r['ID'], 'cell'=>$cell);
    }
    return array('total' => $count, 'rows' => $flexirows);

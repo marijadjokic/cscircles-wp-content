@@ -11,7 +11,7 @@ if (array_key_exists("page", $_GET)) {
  }
 
 if ($page == NULL)
-  { echo "Page not found"; return; }
+  { echo "Stranica nije pronadjena"; return; }
 
 $content = $page->post_content;
 
@@ -25,9 +25,9 @@ $content =
 
 ?>
 <html>
-The following is the source code for the page <b><a href="<?php 
+U nastavku je dat izvorni kod za stranicu <b><a href="<?php 
 echo get_permalink($page->ID); 
-?>"><?php echo $page->post_title; ?></a></b> that you clicked on.
+?>"><?php echo $page->post_title; ?></a></b> na koju ste kliknuli.
 <br>
 <?php echo open_source_preamble(); ?>
 <hr>

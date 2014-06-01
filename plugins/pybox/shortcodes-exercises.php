@@ -33,7 +33,7 @@ function loadMostRecent($slug) {
 
 function pberror( $errmsg) {
   pyboxlog("[pyBoxHandler] " . $errmsg);
-  return "<b>".sprintf(__t("Internal error, details below; please <a href='%s'>contact staff</a>."), cscurl('contact'))."</b> ".__t("Timestamp:")." " . date("y-m-d H:i:s", time()) . "<br/>" . preBox($errmsg);}
+  return "<b>".sprintf(__t("Interna greška, molimo Vas <a href='%s'>kontaktirajte nas</a>."), cscurl('contact'))."</b> ".__t("Vreme:")." " . date("y-m-d H:i:s", time()) . "<br/>" . preBox($errmsg);}
 
 function pyLinkHandler($options, $content) {
   $code = softSafeDereference($options["code"]);
@@ -51,9 +51,9 @@ function pyHintHandler($options, $content) {
 
 function checkbox($slug) {
   if ($slug != 'NULL' && getCompleted($slug)) 
-    return "<img title='".__t("You have completed this problem at least once.")."' src='".UFILES."checked.png' class='pycheck'/>";
+    return "<img title='".__t("Izvršili ste ovaj zadatak najmanje jednom.")."' src='".UFILES."checked.png' class='pycheck'/>";
   else
-    return "<img title='".__t("You have not yet completed this problem.")."' src='".UFILES."icon.png' class='pycheck'/>";
+    return "<img title='".__t("Još uvek niste završili ovaj zadatak.")."' src='".UFILES."icon.png' class='pycheck'/>";
 }
 
 function generateId() {
@@ -69,7 +69,7 @@ function isMakingDatabases() {
 }
 
 function slugwarn() {
-  return "<b style='color:red;' class='slugwarn'>WARNING: this problem needs a permanent slug to save user data</b></br>";
+  return "<b style='color:red;' class='slugwarn'>UPOZORENJE: ovaj problem zahteva konstantni <i> slug </i> da sačuva korisničke podatke</b></br>";
 }
 
 function registerPybox($id, $slug, $type, $facultative, $title, $content, $args = NULL, $hash = NULL, $graderOptions = NULL) {
@@ -78,7 +78,7 @@ function registerPybox($id, $slug, $type, $facultative, $title, $content, $args 
   global $wpdb, $lesson_reg_info;
   if (isMakingDatabases()) {
     if (!userIsAdmin()) {
-      echo "Error: must be admin to rebuild DB.";
+      echo "Greška: morate imati ulogu administratora da bi ste osvežili bazu podataka.";
       return;
     }
     $curr_post = get_post($lesson_reg_info['id']);
@@ -97,7 +97,9 @@ function registerPybox($id, $slug, $type, $facultative, $title, $content, $args 
       if ($lesson_reg_info['index'] >= 0) 
 	$row['publicname'] = $lesson_reg_info["fullnumber"] . ': ' . $title;
       else
+//modifided by Marija Djokic
 	$row['publicname'] = $title; //e.g., for the console, which is not part of any lesson
+//
     }
     if ($args != NULL) {
       $row['shortcodeArgs'] = $args;
@@ -109,9 +111,9 @@ function registerPybox($id, $slug, $type, $facultative, $title, $content, $args 
       $row['graderArgs'] = $graderOptions;
     }
     $row['content'] = $content;
-    echo "<br>About to insert problem: " . rowSummary($row); 
+    echo "<br>O unetom problemu: " . rowSummary($row); 
     if (!$GLOBALS['SKIP_DB_REBUILD']) 
-      echo ($wpdb->insert($table_name, $row)!=1?'<br>insert bad':' insert ok');
+      echo ($wpdb->insert($table_name, $row)!=1?'<br>loš unos':' ok unos');
   }
   else if ($hash != NULL) {
     $lang = currLang2();
@@ -150,34 +152,37 @@ function heading($type, &$options) {
 
 function pyShortHandler($options, $content) {
   $id = generateId();
+  //echo $id;
   
   $answer = $options["answer"];
+  //echo $answer;
 
   $type = getSoft($options, 'type', 'trimmableString');
-
+  //echo $type;
   $r = '';
   $slug = getSoft($options, 'slug', 'NULL');
+  //echo $slug;
   $r .= "<div class='pybox modeNeutral' id='pybox$id'>\n";
   registerPybox($id, $slug, "short answer", FALSE, getSoft($options, 'title', NULL), $content, $options);
   if (isMakingDatabases()) return do_short_and_sweetcode($content); // faster db generation with accurate count
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
 
-  $r .= heading(__t('Short Answer Exercise'), $options);
+  $r .= heading(__t('Vežba kratkog odgovora'), $options);
 
   $r .= do_short_and_sweetcode($content);
-  $r .= '<br><label for="pyShortAnswer'.$id.'">'.__t('Your answer');
-  if ($type=="number") $r .= ' ('.__t('enter a number').')';
+  $r .= '<br><label for="pyShortAnswer'.$id.'">'.__t('Vaš odgovor');
+  if ($type=="number") $r .= ' ('.__t('unesite broj').')';
   $r .= ': </label><input type="text" onkeypress="{if (event.keyCode==13) pbShortCheck('.$id.')}" id="pyShortAnswer'.$id.'">';
   //  $r .= '<hr>';
   $r .= '<div class="pyboxbuttons">';
   $r .= '<input type="hidden" name="type" value="'. $type . '"/>';
   $r .= '<input type="hidden" name="correct" value="'. $answer . '"/>';
   $r .= '<input type="hidden" name="slug" value="'. $slug . '"/>';
-  $r .= "<input type='submit' style='margin:5px;' value='".__t('Check answer')."' onClick = 'pbShortCheck($id)'/>";
+  $r .= "<input type='submit' style='margin:5px;' value='".__t('Proveriti odgovor')."' onClick = 'pbShortCheck($id)'/>";
   $r .= '</div>';
   $r .= '<div class="pbresults" id="pyShortResults'.$id.'"></div>';
-  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Correct!")) . '</div>';
+  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Tačno!")) . '</div>';
   $r .= problemSourceWidget(array('slug'=>$slug,'lang'=>currLang2()));
   $r .= '</div>';
   
@@ -206,11 +211,11 @@ function pyMultiHandler($options, $content) {
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
 
-  $r .= heading(__t('Multiple Choice Exercise'), $options);
+  $r .= heading(__t('Vežba višestrukog izbora'), $options);
 
   $r .= '<div>';
   $r .= do_short_and_sweetcode($content);
-  $r .= '</div><label>'.__t('Your choice:').' </label><select id="pyselect' . $id . '"><option value="d" selected>'.__t('Select one').'</option>';
+  $r .= '</div><label>'.__t('Vaš izbor:').' </label><select id="pyselect' . $id . '"><option value="d" selected>'.__t('Izaberi').'</option>';
   foreach ($shuff as $s) {
     if ($s==-1)
       $r .= '<option value="r">' . $right . '</option>';
@@ -221,10 +226,10 @@ function pyMultiHandler($options, $content) {
   //$r .= '<hr>';
   $r .= "<div class='pyboxbuttons'>";
   $r .= '<input type="hidden" name="slug" value="'. $slug . '"/>';
-  $r .= "<input type='submit' style='margin:5px;' value='".__t("Check answer")."' onClick='pbMultiCheck($id)'/>";
+  $r .= "<input type='submit' style='margin:5px;' value='".__t("Proveriti odgovor")."' onClick='pbMultiCheck($id)'/>";
   $r .= '</div>'; //pyboxbuttons
   $r .= '<div class="pbresults" id="pyMultiResults'.$id.'"></div>';
-  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Correct!")) . '</div>';
+  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Tačno!")) . '</div>';
   $r .= problemSourceWidget(array('slug'=>$slug,'lang'=>currLang2()));
   $r .= '</div>'; //pybox
 
@@ -260,7 +265,7 @@ function pyMultiScrambleHandler($options, $content) {
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
 
-  $r .= heading(__t('Scramble Exercise'), $options);
+  $r .= heading(__t('Vežba premeštanja'), $options);
 
   //  $r .= "<b>Note (Dec 13)</b>: scramble exercises are temporarily broken &mdash; sorry!<br>";
 
@@ -270,11 +275,11 @@ function pyMultiScrambleHandler($options, $content) {
     $r .= '<li id="pyli' . $id . '_' . $a[0] . '" class="pyscramble" >' . $a[1] . '</li>' . "\n"; 
   $r .= '</ul>' . "\n";
   $r .= '<div class="pyboxbuttons">';
-  $r .= "<input type='button' value='".__t("Check answer")."' onclick='pbMultiscrambleCheck($id)'/>\n";
+  $r .= "<input type='button' value='".__t("Proveriti odgovor")."' onclick='pbMultiscrambleCheck($id)'/>\n";
   $r .= '<input type="hidden" name="slug" value="'.$slug.'"/>' . "\n";
   $r .= '</div>'; 
   $r .= '<div id="pbresults' . $id . '" class="pbresults"></div>';
-  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Correct!")) . '</div>';
+  $r .= '<div class="epilogue">'. getSoft($options, "epilogue", __t("Tačno!")) . '</div>';
   $r .= problemSourceWidget(array('slug'=>$slug,'lang'=>currLang2()));
   $r .= '</div>';
 
@@ -498,11 +503,19 @@ function pyBoxHandler($options, $content) {
     $r .= slugwarn();
   }
 
-  if ($facultative) 
-    $r .= heading(__t('Example'), $options);
+//  if ($facultative) 
+//    $r .= heading(__t('Example'), $options);
+  if ($facultative) {
+    if ($console) {
+      unset($options["title"]);
+      $r .= heading("Konzola", $options);
+    }
+   else
+	$r .= heading(__t('Primer'), $options);
+}
   else {
     $r .= checkbox($slug);
-    $r .= heading($scramble ? __t('Scramble Exercise') : __t('Coding Exercise'), $options);
+    $r .= heading($scramble ? __t('Vežba premeštanja') : __t('Vežba kodiranja'), $options);
     //if ($scramble) 
       //  $r .= "<b>Note (Dec 13)</b>: scramble exercises are temporarily broken &mdash; sorry!<br>";
   }
@@ -516,7 +529,7 @@ function pyBoxHandler($options, $content) {
 if (!$facultative && !$scramble) {
   $r .= '<div class="helpOuter" style="display: none;"><div class="helpInner">';
   if (!is_user_logged_in()) {
-    $r .= '<div style="text-align: center">'.__t('You need to create an account and log in to ask a question.').'</div>';
+    $r .= '<div style="text-align: center">'.__t('Morate kreirati nalog i biti logovani da bi ste postavili pitanje.').'</div>';
   }
   else {
     global $wpdb;
@@ -527,22 +540,22 @@ if (!$facultative && !$scramble) {
     if ($guru_login != '' and $guruid !== NULL) {
       $r .= __t('Send a question by e-mail to: ');
       $r .= "<select class='recipient'>
-<option value='1'>".__t("My guru")." ($guru_login)</option>
-<option value='-1'>".__t("CS Circles Assistant")."</option>
+<option value='1'>".__t("Moj mentor")." ($guru_login)</option>
+<option value='-1'>".__t("Asistent")."</option>
 </select></div>";
     } 
     else {
-      $r .= __t('Send a question by e-mail to: ');
+      $r .= __t('Pošaljite pitanje: ');
       $r .= "<select class='recipient'>
-<option value='-1'>".__t("CS Circles Assistant")."</option>
-<option value='0'>".__t("(No guru specified in your profile)")."</option>
+<option value='-1'>".__t("Asistent")."</option>
+<option value='0'>".__t("(Vaš profil nema definisanog mentora)")."</option>
 </select>";
       $r .= '<br/></div>';
     }
-    $r .= __t("Enter text for the message below. <i>Be sure to explain where you're stuck and what you've tried so far. Your partial solution code will be automatically included with the message.</i>");
+    $r .= __t("Unesite tekst za poruku ispod. <i>Objasnite Vaš problem i kako je do njega došlo. Delimični deo koda Vašeg rešenja biće automatski uključen u poruku.</i>");
     $r .= "<textarea style='font-family: serif'></textarea>";
-    $r .= "<table class='helpControls'><tr class='wp-core-ui'><td style='width: 50%'><a class='button' onclick='sendMessage($id,\"$slug\")'>".__t("Send this message")."</a></td><td style='width: 50%'>
-           <a class='button' onclick='helpClick($id)'>".__t("Cancel")."</a></td></tr></table>";
+    $r .= "<table class='helpControls'><tr class='wp-core-ui'><td style='width: 50%'><a class='button' onclick='sendMessage($id,\"$slug\")'>".__t("Pošaljite poruku")."</a></td><td style='width: 50%'>
+           <a class='button' onclick='helpClick($id)'>".__t("Odustani")."</a></td></tr></table>";
   }
 
   $r .= '</div></div>';
@@ -561,7 +574,7 @@ if (!$facultative && !$scramble) {
   else {
     $thecode = $defaultcode;
     if ($autocommentline)
-      $thecode .= __t('# delete this comment and enter your code here')."\n";
+      $thecode .= __t('# obrišite ovaj komentar i unesite Vaš kod ovde')."\n";
     
     if (array_key_exists('slug', $options) && $scramble === FALSE) {
       $savedCode = loadMostRecent($options['slug']);
@@ -613,10 +626,10 @@ if (!$facultative && !$scramble) {
   if ($allowinput) {
     if ($usertni === TRUE)
       $description = 
-	__t('Enter testing statements like <tt>print(myfunction("test argument"))</tt> below.');
+	__t('Unesite kod za testiranje kao što je <tt>print(myfunction("test argument"))</tt> ispod.');
     else
       $description =
-	__t("You may enter input for the program in the box below.");
+	__t("Možete uneti ulaz za program u polje ispod.");
 
     $r .= '<div name="pyinput" id="pyinput'.$id.'">';
     $r .= $description;
@@ -636,22 +649,22 @@ if (!$facultative && !$scramble) {
     //    $userLikesRich = (!is_user_logged_in()) || ("true"!==get_the_author_meta( 'pbplain', get_current_user_id()));
     $userLikesRich = TRUE;
     if ($showEditorToggle || $richreadonly)
-      $actions['CMtoggle'] = array('value'=>__t('Rich editor'), 
-				   'id'=>"toggleCM$id", 'onclick'=>"pbToggleCodeMirror($id)");
+     // $actions['CMtoggle'] = array('value'=>__t('Rich editor'), 
+				  // 'id'=>"toggleCM$id", 'onclick'=>"pbToggleCodeMirror($id)");
     if ($userLikesRich)
       $readyScripts .= "jQuery(function(){pbToggleCodeMirror($id);});";
   }
-  if (!$scramble && ($lessonNumber >= 4 || $lessonNumber < 0)) {
-    $actions['consolecopy'] = array('value'=>__t('Open in console'), 'onclick'=>"pbConsoleCopy($id)");
+  if (!$scramble && !$console && ($lessonNumber >= 4 || $lessonNumber < 0)) {
+    $actions['consolecopy'] = array('value'=>__t('Otvoriti u konzoli'), 'onclick'=>"pbConsoleCopy($id)");
   }
   if (!$scramble && ($lessonNumber >= 4 || $lessonNumber < 0)) {
-    $actions['visualize'] = array('value'=>__t('Visualize'), 'onclick'=>"pbVisualize($id,'$tni')");
+    $actions['visualize'] = array('value'=>__t('Vizualizacija'), 'onclick'=>"pbVisualize($id,'$tni')");
   }
   if (!$readonly && !$scramble) {
     //$actions['save'] = array('value'=>'Save without running', 'onclick'=>"pbSave($id)");
     if (array_key_exists("slug", $options)) {
       $historyAction = "historyClick($id,'$slug')";
-      $actions['history'] = array('value'=>__t('History'), 'onclick'=>$historyAction);
+      $actions['history'] = array('value'=>__t('Istorija'), 'onclick'=>$historyAction);
     }
     if( !($readonly === "Y") && ($defaultcode != '') && ($defaultcode !== FALSE)) {
       // prepare the string for javaScript enclosure
@@ -659,12 +672,12 @@ if (!$facultative && !$scramble) {
       // our $button usage
       $dc = substr(json_encode(htmlspecialchars_decode($defaultcode, ENT_QUOTES), JSON_HEX_APOS), 1, -1);
       $r .= "<input type='hidden' id='defaultCode$id' value='$dc'></input>\n";
-      $actions['default'] = array('value'=>__t('Reset code to default'), 'onclick'=>"pbSetText($id,descape($('#defaultCode$id').val()))", );
+      $actions['default'] = array('value'=>__t('Resetovati kod na podrazumevani'), 'onclick'=>"pbSetText($id,descape($('#defaultCode$id').val()))", );
     }
   }
 
   if (!$facultative && !$scramble && !(get_option('cscircles_hide_help'))) {
-    $actions['help'] = array('value'=>__t('Help'), 'onclick'=>"helpClick($id);");
+    $actions['help'] = array('value'=>__t('Pomoć'), 'onclick'=>"helpClick($id);");
   }
 
 
@@ -674,7 +687,7 @@ if (!$facultative && !$scramble) {
   $r .= "<div class='pyboxbuttons'><table><tr>\n";
   if (!$richreadonly)
     $r .= "<td><input type='submit' name='submit' id='submit$id' value=' '/></td>\n";
-  $mb = 3; //maximum number of buttons, not counting 'submit'
+  $mb = 2; //maximum number of buttons, not counting 'submit'
   $i=0;
   foreach ($actions as $name => $atts) {
     $i++;
@@ -683,7 +696,7 @@ if (!$facultative && !$scramble) {
       continue;
     }
     if ($i==1+$mb) {
-      $r .= "</tr></table><select id='pbSelect$id' class='selectmore'><option name='more'>".__t("More actions...")."</option>\n";
+      $r .= "</tr></table><select id='pbSelect$id' class='selectmore'><option name='more'>".__t("Više akcija...")."</option>\n";
     } 
     $r .= option($name, $atts);
   }
@@ -704,7 +717,7 @@ if (!$facultative && !$scramble) {
   // although inputInUse starts as Y, the next script sets it to N and fixes the button labels
   $readyScripts .= $allowinput?
     ('pbInputSwitch(' . $id . ',"' . ($usertni?'Y':'N') . '");'):
-    'document.getElementById("submit' . $id . '").value = "'.__t('Run program').'";' .
+    'document.getElementById("submit' . $id . '").value = "'.__t('Izvršiti program').'";' .
     'document.getElementById("inputInUse' . $id . '").value = "N";';
 
   /// part 5 : results area, and footers
@@ -723,6 +736,7 @@ if (!$facultative && !$scramble) {
   return $r;
   
 }
+
 
 
 // end of file

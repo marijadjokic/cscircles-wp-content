@@ -18,7 +18,7 @@ function newuserwelcome($options, $content) {
     $ulog = wp_login_url( cscurl('homepage') );
     $uuse = cscurl('usage');
 
-    return "<em>".sprintf(__t('New around here? Read <a %1$s>Using this Website</a>. You can also <a %2$s>click here to create an account or log in</a>.'), 
+    return "<em>".sprintf(__t('Novi ste korisnik? Pročitajte našu stranu<a %1$s>Početna</a>. Takođe, možete <a %2$s>pristupiti ovde da kreirate Vaš nalog ili da se prijavite.</a>.'), 
 			  "class='open-same-window' href='$uuse'", 
 			  "class='open-same-window' href='$ulog'")."</em><br/>";
   }
@@ -96,11 +96,11 @@ function list_pybox_pages($options, $content) {
   $profile_url  = get_edit_profile_url( $user_id );
 
   if ( $user_id ) {
-    $links[] = array("url"=>$profile_url, "title"=>__t('Edit my profile'));
-    $links[] = array("url"=>wp_logout_url(), 'title'=>__t('Log out now'));
+    $links[] = array("url"=>$profile_url, "title"=>__t('Uredi moj profil'));
+    $links[] = array("url"=>wp_logout_url(), 'title'=>__t('Odjavi se'));
   } 
   else
-    $links[] = array("url"=>wp_logout_url(), 'title'=>__t('Log in or create a new account'));
+    $links[] = array("url"=>wp_logout_url(), 'title'=>__t('Prijavi se ili kreiraj novi nalog'));
 
 
   foreach ($links as $i=>$page) {

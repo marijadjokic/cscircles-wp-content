@@ -275,14 +275,14 @@ ExecutionVisualizer.prototype.render = function() {
   var codeDisplayHTML =
     '<div id="codeDisplayDiv">\
        <div id="pyCodeOutputDiv"/>\
-       <div id="editCodeLinkDiv"><a id="editBtn">Edit code</a></div>\
+       <div id="editCodeLinkDiv"><a id="editBtn">Uredi kod</a></div>\
        <div id="executionSlider"/>\
        <div id="vcrControls">\
-         <button id="jmpFirstInstr", type="button">&lt;&lt; First</button>\
-         <button id="jmpStepBack", type="button">&lt; Back</button>\
+         <button id="jmpFirstInstr", type="button">&lt;&lt; Početak</button>\
+         <button id="jmpStepBack", type="button">&lt; Nazad</button>\
          <span id="curInstr">Step ? of ?</span>\
-         <button id="jmpStepFwd", type="button">Forward &gt;</button>\
-         <button id="jmpLastInstr", type="button">Last &gt;&gt;</button>\
+         <button id="jmpStepFwd", type="button">Sledeći &gt;</button>\
+         <button id="jmpLastInstr", type="button">Poslednji &gt;&gt;</button>\
        </div>\
        <div id="errorOutput"/>\
        <div id="legendDiv"/>\
@@ -290,7 +290,7 @@ ExecutionVisualizer.prototype.render = function() {
          <textarea class="annotationText" id="stepAnnotationEditor" cols="60" rows="3"></textarea>\
          <div class="annotationText" id="stepAnnotationViewer"></div>\
        </div>\
-       <div id="annotateLinkDiv"><button id="annotateBtn" type="button">Annotate this step</button></div>\
+       <div id="annotateLinkDiv"><button id="annotateBtn" type="button">Obeležite ovaj korak</button></div>\
      </div>';
 
   var outputRows = Math.min(10, myViz.stdoutLines);
@@ -298,7 +298,7 @@ ExecutionVisualizer.prototype.render = function() {
   var outputsHTML =
     '<div id="htmlOutputDiv"></div>\
      <div id="progOutputs">\
-       Program output:<br/>\
+       Izlaz programa:<br/>\
        <textarea id="pyStdout" cols="1" rows="'+outputRows+'" wrap="off" readonly></textarea>\
      </div>';
 
@@ -308,13 +308,13 @@ ExecutionVisualizer.prototype.render = function() {
          <tr>\
            <td id="stack_td">\
              <div id="globals_area">\
-               <div id="stackHeader">Frames</div>\
+               <div id="stackHeader">Okviri</div>\
              </div>\
              <div id="stack"></div>\
            </td>\
            <td id="heap_td">\
              <div id="heap">\
-               <div id="heapHeader">Objects</div>\
+               <div id="heapHeader">Objekti</div>\
              </div>\
            </td>\
          </tr>\
@@ -357,8 +357,8 @@ ExecutionVisualizer.prototype.render = function() {
 
   if (this.params.arrowLines) {
       this.domRoot.find('#legendDiv')
-          .append('<svg id="prevLegendArrowSVG"/> line that has just executed')
-          .append('<p style="margin-top: 4px"><svg id="curLegendArrowSVG"/> next line to execute</p>');
+          .append('<svg id="prevLegendArrowSVG"/> upravo izvršena linija koda')
+          .append('<p style="margin-top: 4px"><svg id="curLegendArrowSVG"/> sledeća linija koda</p>');
       
       myViz.domRootD3.select('svg#prevLegendArrowSVG')
           .append('polygon')
@@ -372,8 +372,8 @@ ExecutionVisualizer.prototype.render = function() {
   }
   else if (this.params.highlightLines) {
       myViz.domRoot.find('#legendDiv')
-          .append('<span class="highlight-legend highlight-prev">line that has just executed</span> ')
-          .append('<span class="highlight-legend highlight-cur">next line to execute</span>')
+          .append('<span class="highlight-legend highlight-prev">upravo izvršena linija koda</span> ')
+          .append('<span class="highlight-legend highlight-cur">sledeća linija koda</span>')
   }
   else if (this.params.pyCrazyMode) {
       myViz.domRoot.find('#legendDiv')
@@ -438,14 +438,14 @@ ExecutionVisualizer.prototype.render = function() {
 
         myViz.domRoot.find("#jmpFirstInstr,#jmpLastInstr,#jmpStepBack,#jmpStepFwd,#executionSlider,#editCodeLinkDiv,#stepAnnotationViewer").show();
         myViz.domRoot.find('#stepAnnotationEditor').hide();
-        ab.html('Annotate this step');
+        ab.html('Označite ovaj korak');
       }
       else {
         myViz.enterEditAnnotationsMode();
 
         myViz.domRoot.find("#jmpFirstInstr,#jmpLastInstr,#jmpStepBack,#jmpStepFwd,#executionSlider,#editCodeLinkDiv,#stepAnnotationViewer").hide();
         myViz.domRoot.find('#stepAnnotationEditor').show();
-        ab.html('Done annotating');
+        ab.html('Označavanje je završeno');
       }
     });
   }
@@ -483,8 +483,8 @@ ExecutionVisualizer.prototype.render = function() {
       .css('max-height', this.params.codeDivHeight + 'px');
   }
 
-  var globalsLabel = "Global frame";
-  if (myViz.params.lang == 'java') globalsLabel = "Static fields";
+  var globalsLabel = "Globalni okvir";
+  if (myViz.params.lang == 'java') globalsLabel = "Statička polja";
   
   // create a persistent globals frame
   // (note that we need to keep #globals_area separate from #stack for d3 to work its magic)
@@ -1308,11 +1308,11 @@ ExecutionVisualizer.prototype.updateOutput = function(smoothTransition) {
       vcrControls.find("#curInstr").html("Instruction limit reached");
     }
     else {
-      vcrControls.find("#curInstr").html("Program terminated");
+      vcrControls.find("#curInstr").html("Program je završen");
     }
   }
   else {
-    vcrControls.find("#curInstr").html("Step " +
+    vcrControls.find("#curInstr").html("Korak " +
                                        String(this.curInstr + 1) +
                                        " of " + String(totalInstrs-1));
   }
@@ -1342,8 +1342,8 @@ ExecutionVisualizer.prototype.updateOutput = function(smoothTransition) {
       curEntry.event == 'uncaught_exception') {
     assert(curEntry.exception_msg);
 
-    if (curEntry.exception_msg == "Unknown error") {
-      myViz.domRoot.find("#errorOutput").html('Unknown error: Please email a bug report to philip@pgbovine.net');
+    if (curEntry.exception_msg == "Nepoznata greška") {
+      myViz.domRoot.find("#errorOutput").html('Nepoznata greška: Pošaljite email sa opisom greške na philip@pgbovine.net');
     }
     else {
       myViz.domRoot.find("#errorOutput").html(htmlspecialchars(curEntry.exception_msg));

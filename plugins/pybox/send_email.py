@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-BOUNCE_ADDRESS = 'bounces@cscircles.cemc.uwaterloo.ca'
-WEBSITE_URL = 'http://cscircles.cemc.uwaterloo.ca/' # with trailing slash
+#modifided by Marija Djokic
+BOUNCE_ADDRESS = 'm.djokic@kg.ac.rs'
+WEBSITE_URL = 'http://147.91.205.71/wordpress/ # with trailing slash
 
 """Usage:
 - first line is sender in the format: full name <address@doma.in>

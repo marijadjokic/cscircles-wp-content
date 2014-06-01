@@ -77,8 +77,8 @@ function footsy() {
     
     // these are the publicly-available languages
     foreach (array('en', 'fr', 'de') as $lang) {
-      if ($lang != pll_current_language()) 
-        echo '<li><a href="'.get_permalink(pll_get_post(get_the_ID(), $lang)).'">'.$lang.'</a></li>';
+      if ($lang != pll_current_language()) {}
+        //echo '<li><a href="'.get_permalink(pll_get_post(get_the_ID(), $lang)).'">'.$lang.'</a></li>';
     }
     
     // these are the ones in development
@@ -86,12 +86,12 @@ function footsy() {
         userIsTranslator() || userIsAssistant())
       foreach (array('nl') as $lang) {
         if ($lang != pll_current_language()) {
-          echo '<li><a href="'.get_permalink(pll_get_post(get_the_ID(), $lang)).'">'.$lang.'</a></li>';
+          //echo '<li><a href="'.get_permalink(pll_get_post(get_the_ID(), $lang)).'">'.$lang.'</a></li>';
         }
       }
     // old method:  echo pll_the_languages(array('echo'=>0,'display_names_as' => 'slug','hide_current' => 1));
     if (userIsAdmin() || userIsTranslator() || userIsAssistant())
-      echo '<li><a href="'.admin_url('edit.php?post_type=page').'">'.__t('Editor').'</a></li>';
+      echo '<li><a href="'.admin_url('edit.php?post_type=page').'">'.__t('Uredi').'</a></li>';
     echo '</span>';
   }
 }

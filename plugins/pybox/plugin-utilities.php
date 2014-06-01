@@ -51,12 +51,12 @@ function cscurl($desc) {
   //return is_admin() ? "/" : pll_home_url();
   
   $cscslugmap = array(
-		     ('progress') => 'user-page',
-		     ('mail') => 'mail',
-		     ('resources') => 'resources',
-		     ('console') => 'console',
+		     ('progress') => 'korisnicka-strana',
+		     ('mail') => 'komunikacija',
+		     ('resources') => 'resursi',
+		     ('console') => 'konzola',
 		     ('usage') => 'using-this-website',
-		     ('contact') => 'contact',
+		     ('contact') => 'kontakt',
 		     ('install') => 'run-at-home',
 		     ('allusers') => 'admin-user-list',
 		     ('homepage') => NULL // see below
@@ -438,7 +438,7 @@ function bounded_stream_get_contents($strm, $maxlen) {
 function returnfromprofile() {
   $u = getSoft($_REQUEST, 'wp_http_referer', site_url());
   
-  return "<div><a class='button button-primary' href='$u'>".__t("Return to Computer Science Circles")."</a></div>";
+  return "<div><a class='button button-primary' href='$u'>".__t("Vratite se na IMI Python learning")."</a></div>";
 }
 
 function getSoft($array, $key, $default) {
@@ -605,7 +605,7 @@ function problemSourceWidget($parms, $bump = false) {
     $classes = "get-problem-source";
     if ($bump) $classes .= " bumpit";
     
-    return '<a class="'.$classes.'" target="_blank" title="'.__t('View definition')
+    return '<a class="'.$classes.'" target="_blank" title="'.__t('Vidi definiciju')
       .'" href="'.UPROBLEMSOURCE.'?'.http_build_query($parms).'">'
       .'&lt;/&gt;</a>';
   }
@@ -617,7 +617,7 @@ function pageSourceWidget() {
   if ( is_user_logged_in() && isset($post) ) {
     $classes = "get-page-source";
     
-    return '<a class="'.$classes.'" target="_blank" title="'.__t('View page source')
+    return '<a class="'.$classes.'" target="_blank" title="'.__t('Pogledajte izvorni kod')
       .'" href="'.UPAGESOURCE.'?'.http_build_query(array("page"=>$post->ID)).'">'
       ."<img src='".UFILES."/cc.png'></a>";
       //      .'&lt;/&gt;</a>';
@@ -627,7 +627,7 @@ function pageSourceWidget() {
 
 function open_source_preamble() {
   if (!is_user_logged_in()) {
-    echo "<i>Sorry, you need to be logged in to view this page.</i>";
+    echo "<i>Žao nam je, morate biti prijavljeni da bi ste videli ovu stranicu.</i>";
     die(0);
   }
 
@@ -641,17 +641,17 @@ function open_source_preamble() {
   simpleProfilingEntry(array("activity" => "view-source",
                              "meta" => $log));
 
-  return '
-We provide it under a <img src="files/cc.png" style="height: 1em"/>
-<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">
-Creative Commons Non-Commerical Share-Alike 3.0 License</a> 
-<br>
-Use it as a model in <a href="/authoring">creating your own</a> CS Circles lessons and exercises.
-<br>
-We encourage you to <a href="/contact">contact us</a> if you have questions or want to write, share or remix our content.
-<br>
-Visit <a href="https://github.com/cemc/cscircles-wp-content">https://github.com/cemc/cscircles-wp-content</a>
-for the CS Circles backend source code.';
+//  return '
+//We provide it under a <img src="files/cc.png" style="height: 1em"/>
+//<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">
+//Creative Commons Non-Commerical Share-Alike 3.0 License</a> 
+//<br>
+//Use it as a model in <a href="/authoring">creating your own</a> CS Circles lessons and exercises.
+//<br>';
+return 'Ukoliko imate bilo kakvih pitanja <a href="/wordpress/kontak">kontaktirajte nas</a>!
+<br>';
+//Visit <a href="https://github.com/cemc/cscircles-wp-content">https://github.com/cemc/cscircles-wp-content</a>
+//for the CS Circles backend source code.';
 }
 
 // end of file
