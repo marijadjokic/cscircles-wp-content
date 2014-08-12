@@ -13,12 +13,12 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
    $db_query_info['type'] = 'problem-summary';
 
    if ( !is_user_logged_in() )
-     return __t("You must log in to view past submissions.");
+     return __t("Morate biti prijavljeni da bi ste videli ranije pokušaje.");
 
    $problemslug = getSoft($req, "p", ""); //which problem?
-
+   $date = getSoft($req, "d", "");
    if ($problemslug=="")
-     return __t("You must enter a non-empty problem name.");
+     return __t("Morate uneti naziv zadatka.");
 
    global $wpdb;   
    $problem_table = $wpdb->prefix . "pb_problems";
@@ -28,7 +28,7 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
       ("SELECT publicname FROM $problem_table WHERE lang = 'sr' AND slug = '%s'", $problemslug));
    //
    if ($problemname == null) 
-     return sprintf(__t("Problem %s not found (at least in current language)"), $problemslug);
+     return sprintf(__t("Problem %s nije pronađen"), $problemslug);
 
    $db_query_info['problem'] = $problemslug;
    
@@ -41,18 +41,25 @@ function dbProblemSummary($limit, $sortname, $sortorder, $req = NULL) {
    $usermeta_table = $wpdb->prefix . "usermeta";
    $user_table = $wpdb->prefix . "users";
    $complete_table = $wpdb->prefix . "pb_completed";
-
+   
+   $newdate=date("Y-m-d", strtotime($date));
    $count = $wpdb->get_var
      (!userIsAdmin() ?
       ("SELECT count(1) FROM $user_table")
       : $wpdb->prepare
-      ("SELECT count(1) FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s", 'pbguru', $ulogin));
+      ("SELECT count(1) FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s AND user_id IN 
+(SELECT ID
+FROM wp_users
+WHERE user_registered>'".$newdate."')", 'pbguru', $ulogin));
 
    $students = $wpdb->get_results
      (!userIsAdmin() ?
       ("SELECT ID FROM $user_table $limit")
       : $wpdb->prepare
-      ("SELECT user_id AS ID FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s $limit", 'pbguru', $ulogin));
+      ("SELECT user_id AS ID FROM $usermeta_table WHERE meta_key=%s AND meta_value=%s AND user_id IN 
+(SELECT ID
+FROM wp_users
+WHERE user_registered>'".$newdate."') $limit", 'pbguru', $ulogin));
    
    // no sorting allowed due to weird nature of query
 

@@ -21,23 +21,28 @@ only view messages that are to/from themselves and their students
 function dbMail($limit, $sortname, $sortorder, $req = NULL) {
   global $db_query_info;
   $db_query_info = array();
-
+ 
   $who = getSoft(($req===NULL?$_REQUEST:$req), "who", "");
   $xwho = getSoft(($req===NULL?$_REQUEST:$req), "xwho", "");
   $what = getSoft(($req===NULL?$_REQUEST:$req), "what", "");
+  $level = getSoft(($req===NULL?$_REQUEST:$req), "level", "");
   $xwhat = getSoft(($req===NULL?$_REQUEST:$req), "xwhat", "");
   $unans = getSoft(($req===NULL?$_REQUEST:$req), "unans", "");
 
    $db_query_info['type'] = 'mail-history';
    $db_query_info['who'] = $who;
+   $db_query_info['level'] = $level;
    $db_query_info['xwho'] = $xwho;
    $db_query_info['what'] = $what;
    $db_query_info['xwhat'] = $xwhat;
    $db_query_info['unans'] = $unans;
 
+   
    if ( !is_user_logged_in() )
-     return __t("You must log in to view past mail.");
+     return __t("Morate biti logovani da bi ste videli raniju komunikaciju.");
 
+  
+   
    $where = 'WHERE 1';
 
    if (userIsAdmin()) {
@@ -51,23 +56,23 @@ function dbMail($limit, $sortname, $sortorder, $req = NULL) {
 
    if ($who != '') {
      if (!is_numeric($who))
-       return sprintf(__t("%s must be numeric."), "'who'");
+       return sprintf(__t("%s mora biti broj."), "'who'");
      $who = (int)$who;
      if (userIsAdmin() || getUserID() == $who || getUserID() == guruIDID($who) || userIsAssistant())
        $where .= ' AND ustudent = '.$who;
      else
-       return __t("Access denied.");
+       return __t("Pristup je odbijen.");
    }
    else if ($xwho != '') {
      if (!is_numeric($xwho))
-       return sprintf(__t("%s must be numeric."), "'xwho'");
+       return sprintf(__t("%s mora biti broj."), "'xwho'");
      $xwho = (int)$xwho;
      $where .= ' AND ustudent != '.$xwho;
    }
 
    if ($unans != '') {
      if (!is_numeric($unans))
-       return sprintf(__t("%s must be numeric."), "'unans'");
+       return sprintf(__t("%s mora biti broj."), "'unans'");
      $unans = (int)$unans;
      $where .= ' AND unanswered = '.$unans;
    }
@@ -88,18 +93,78 @@ function dbMail($limit, $sortname, $sortorder, $req = NULL) {
 
    $sortString = (array_key_exists($sortname, $knownFields)) ?
      ($knownFields[$sortname] . " " . $sortorder . ", ") : "";
+//modified by Marija Djokic
 
-   $count = $wpdb->get_var("SELECT COUNT(1) from $table_name $where");
-   $prep = "SELECT * from $table_name $where ORDER BY $sortString ID DESC" . $limit;
 
-   //   pyboxlog($prep);
+if(userIsAdmin())
+{
+ $count = $wpdb->get_var
+("SELECT COUNT(1) 
+from $table_name $where 
+AND problem IN(
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id =$level
+AND wp_pb_lessons.is_test=0
+)");
+
+
+$prep = "SELECT * from $table_name $where AND problem IN(
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id =$level
+AND wp_pb_lessons.is_test=0
+)
+ORDER BY $sortString ID DESC" . $limit;
+}
+
+
+else
+{
+$count = $wpdb->get_var
+("SELECT COUNT(1) 
+from $table_name $where 
+AND problem IN(
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = wp_users.current_lesson_level_id
+AND wp_pb_lessons.is_test=0
+AND wp_users.ID =".getUserID()."
+)");
+
+   $prep = "SELECT * from $table_name $where AND problem IN(
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = wp_users.current_lesson_level_id
+AND wp_pb_lessons.is_test=0
+AND wp_users.ID =".getUserID()."
+)
+ORDER BY $sortString ID DESC" . $limit;
+}
+
    
    $flexirows = array();
    foreach ($wpdb->get_results( $prep, ARRAY_A ) as $r) {
      $cell = array();
      $cell[__t('od koga')] = nicefiedUsername($r['ufrom']);
      $cell[__t('kome')] = nicefiedUsername($r['uto']);
-     $url =  cscurl('mail') . "?who=".$r['ustudent']."&what=".$r['problem']."&which=".$r['ID']."#m\n";
+     $url =  cscurl('mail') . "?who=".$r['ustudent']."&level=".$level."&what=".$r['problem']."&which=".$r['ID']."#m\n";
      $cell[__t('kada')] = str_replace(' ', '<br>', $r['time']);
      if ($what=='')
        $cell[__t('problem')] = $r['problem'];

@@ -66,7 +66,7 @@ $page_src_url = UPAGESOURCE.'?'.http_build_query(array("page"=>$row['postid']));
 $content = get_post($row['postid'])->post_content;
 $found = preg_match("_\[authorship.*info=\\s*(.*)/(authorship)?\]_s", $content, $match);
 if ($found > 0)
-  $authorshipmsg = 'The <a href="'.$page_src_url.'">containing page source</a> has authorship info: <i>'.$match[1].'</i>';
+  $authorshipmsg = '<a href="'.$page_src_url.'">Izvorni kod stranice</a> je vlasništvo: <i>'.$match[1].'</i>';
  else
    $authorshipmsg = 'Videti <a href="'.$page_src_url.'">izvorni kod stranice</a>.';
 

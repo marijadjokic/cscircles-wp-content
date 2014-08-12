@@ -34,13 +34,25 @@ on the lesson slugs; contact us for help if needed.)</div>";
 
     }
     if ($m >= 1) 
+{
+
+//modifided by Marija Djokic
+$content = get_post($page->ID)->post_content;
+$found = preg_match('_\[level.*lessonlevel=\\s*(.*)/(level)?\]_s', $content, $match);
+$found_tets = preg_match('_\[test.*istest=\\s*(.*)/(test)?\]_s', $content, $match_test);
+
+if ($found > 0)
+
       $lessons[] = array('number'=>$matches[1].$matches[2], 
 			 'title'=>$matches[3], 
 			 'major'=>$matches[1], 
 			 'minor'=>$matches[2], 
 			 'id'=>$page->ID,
-			 'lang'=>$lang); 
-    //modified by Marija Djokic
+			 'lang'=>$lang,
+                         'level_id'=>str_replace('"','',$match[1]),
+                         'is_test'=>str_replace('"','',$match_test[1])); 
+}
+
     elseif ((class_exists('PLL_Base') && (get_page_by_path('console')->ID == pll_get_post($page->ID, 'sr')))
             || get_page_by_path('console')->ID == $page->ID)
       $lessons[] = array('id'=>$page->ID, 'number'=>NULL, 'lang'=>$lang); 
@@ -81,7 +93,7 @@ on the lesson slugs; contact us for help if needed.)</div>";
     $wpdb->query("TRUNCATE TABLE $lesson_table_name;");
     echo 'done</b>';
   }
-
+//modified by Marija Djokic
   $currlang = 'xx';
   $i = -1;
   $gets = array();
@@ -94,9 +106,10 @@ on the lesson slugs; contact us for help if needed.)</div>";
     if ($l['number'] == NULL) 
       $index = -1;
     else {
-      $index = $i;
+      $i=$l['number'];
+      $index = $l['number'];
       $i++;
-    }
+}
     $l['ordering'] = $index;
 
     if ($l['number'] != NULL) {

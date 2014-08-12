@@ -12,6 +12,20 @@ function authorship($o, $c){
   return "<!-- " . $o['info'] . "-->";
 }
 
+//added by Marija Djokic
+add_shortcode('level', 'level');
+function level($o, $c){
+  // this is treated only like a comment, let's include it anyway
+  return $o['info'];
+}
+
+add_shortcode('test', 'test');
+function test($o, $c){
+  // this is treated only like a comment, let's include it anyway
+  return $o['info'];
+}
+//
+
 add_shortcode('newuserwelcome', 'newuserwelcome');
 function newuserwelcome($options, $content) {
   if ( ! is_user_logged_in() ) {

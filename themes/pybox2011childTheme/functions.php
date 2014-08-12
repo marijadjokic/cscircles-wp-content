@@ -3,9 +3,91 @@ define( 'HEADER_IMAGE_WIDTH', apply_filters( 'twentyeleven_header_image_width', 
 define( 'HEADER_IMAGE_HEIGHT', apply_filters( 'twentyeleven_header_image_height', 150 ) );
 define( 'HEADER_IMAGE', content_url('/themes/pybox2011childTheme/images/header.jpg') );
 
+
+//added by Marija Djokic
+add_action('wp_logout','go_home');
+function go_home(){
+  wp_redirect( home_url() );
+  exit();
+}
+
+
 // don't show avatars
 add_filter('pre_option_show_avatars', 'do_not_show_avatars');
 function do_not_show_avatars() { return 0; }
+
+//added new menu item by Marija Djokic
+if (is_user_logged_in()) {
+add_filter( 'wp_nav_menu_items', 'your_custom_menu_item', 10, 2 );
+	function your_custom_menu_item ( $items, $args ) {
+            global $wpdb;
+            
+            $page_id = get_queried_object_id();
+            
+            $menu_item_id = 100;
+if(userIsAdmin()){
+
+$items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page menu-item-".$menu_item_id."'><a href='./student-komunikacija'>Komunikacija</a>";
+$menu_item_id++;
+$items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page menu-item-".$menu_item_id."'><a href='./testovi'>Testovi</a>";
+}
+
+            $lessons_table = $wpdb->prefix . "pb_lessons";
+            $lesson_level_table = $wpdb->prefix . "pb_lesson_level";
+
+            $page_lessonslevel = $wpdb->get_var("SELECT level FROM $lessons_table, $lesson_level_table WHERE wp_pb_lessons.level_id = wp_pb_lesson_level.id AND wp_pb_lessons.id=$page_id");
+            $page_lessonslevel_id = $wpdb->get_var("SELECT id FROM $lesson_level_table WHERE level='$page_lessonslevel'");
+            
+            //echo $page_lessonslevel.''.$page_lessonslevel_id;
+  
+       if($page_lessonslevel!="")
+            $wpdb->query("UPDATE wp_users SET current_lesson_level_id='$page_lessonslevel_id' WHERE ID=".getUserID()."");
+            $user_lessonslevel = $wpdb->get_var("SELECT level FROM  $lesson_level_table, wp_users WHERE wp_users.current_lesson_level_id=$lesson_level_table.id AND wp_users.ID=".getUserID()."");
+            $user_lessonslevel_id = $wpdb->get_var("SELECT $lesson_level_table.id FROM  $lesson_level_table, wp_users WHERE wp_users.current_lesson_level_id=$lesson_level_table.id AND wp_users.ID=".getUserID()."");
+            //echo $user_lessonslevel_id;
+if($user_lessonslevel!="")
+	    if ($args->theme_location == 'primary') {
+
+             $menu_item_id++;
+if(!userIsAdmin())
+$items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page menu-item-".$menu_item_id."'><a href='./komunikacija'>Komunikacija</a>";
+             $items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page menu-item-".$menu_item_id."'><a href='./korisnicka-strana'>Moj progres</a>";
+$menu_item_id++;
+	        $items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-".$menu_item_id."'><a href='#'>". $user_lessonslevel ." nivo <small>&#x25BC</small></a><ul class='sub-menu'>";
+           
+           $lessons = $wpdb->get_results("SELECT * FROM $lessons_table WHERE level_id='$user_lessonslevel_id' AND is_test=0", ARRAY_A);
+            foreach($lessons as $lesson){
+           $menu_item_id++;
+            $exercisesbylesson=$wpdb->get_var("SELECT COUNT(*) FROM wp_pb_problems WHERE postid=".$lesson['id']." and slug IS NOT NULL");
+            //echo $exercisesbylesson;
+            $numberofuserexercises=$wpdb->get_var("SELECT COUNT(*) FROM wp_pb_completed,wp_pb_problems WHERE userid=".getUserID()." AND postid=".$lesson['id']." AND problem=slug GROUP BY problem AND slug");
+           //echo $numberofuserexercises;
+           if($exercisesbylesson==$numberofuserexercises){
+ 
+               if($lesson['id']==$page_id){
+$items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page  menu-item-".$menu_item_id."'><a href='".get_page_link($lesson['id'])."'><img src='/wordpress/wp-content/themes/pybox2011childTheme/images/selected.png' style='width:auto; display:inline;'/>".$lesson['number'].':'. $lesson['title']."</a></li>";
+           }
+else{
+             $items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page  menu-item-".$menu_item_id."'><a href='".get_page_link($lesson['id'])."'><img src='/wordpress/wp-content/themes/pybox2011childTheme/images/completed.png' style='width:auto; display:inline;'/> ".$lesson['number'].':'. $lesson['title']."</a></li>";
+}
+}
+           else{
+ if($lesson['id']==$page_id){
+$items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page  menu-item-".$menu_item_id."'><a href='".get_page_link($lesson['id'])."'><img src='/wordpress/wp-content/themes/pybox2011childTheme/images/selected.png' style='width:auto; display:inline;'/>".$lesson['number'].':'. $lesson['title']."</a></li>";
+           }
+else{
+              $items .= "<li id='menu-item-".$menu_item_id."' class='menu-item menu-item-type-post_type menu-item-object-page  menu-item-".$menu_item_id."'><a href='".get_page_link($lesson['id'])."'><img src='/wordpress/wp-content/themes/pybox2011childTheme/images/notcompleted.png' style='width:auto; display:inline;'/> ".$lesson['number'].':'. $lesson['title']."</a></li>";
+}
+}
+         
+           
+            };
+            $items .= "</ul></li>";
+	    }
+            
+	    return $items;
+	}
+}
 
 // transparent latex backgrounds
 add_filter('option_wp_latex', 'transparent_latex_bg');
@@ -172,13 +254,13 @@ add_filter('show_admin_bar', '__return_true');
 
 add_action('admin_bar_menu', 'pb_menu_items', 5);
 function pb_menu_items($wp_admin_bar) {
-  $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('progress'), 'title'=>__t('Moj napredak'), 'id'=>'up'));
+  //$wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('progress'), 'title'=>__t('Moj napredak'), 'id'=>'up'));
   if (!get_option('cscircles_hide_help'))
-    $wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('mail'), 'title'=>__t('Komunikacija'), 'id'=>'uppity'));
-  $wp_admin_bar->add_menu( array( 'id'=>'snappy', 'parent' => 'user-actions', 'title' => __t('Konzola'), 'href' => cscurl('console'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'snappie', 'parent' => 'user-actions', 'title' => __t('Vizualizacija'), 'href' => cscurl('visualize'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'crackle', 'parent' => 'user-actions', 'title' => __t('Izvori'), 'href' => cscurl('resources'), "meta" => array("target" => "_blank")));
-  $wp_admin_bar->add_menu( array( 'id'=>'pop', 'parent' => 'user-actions', 'title' => __t('Kontakt'), 'href' => cscurl('contact'), "meta" => array("target" => "_blank")));
+    //$wp_admin_bar->add_menu( array( 'parent' => 'user-actions', 'href' => cscurl('mail'), 'title'=>__t('Komunikacija'), 'id'=>'uppity'));
+  //$wp_admin_bar->add_menu( array( 'id'=>'snappy', 'parent' => 'user-actions', 'title' => __t('Konzola'), 'href' => cscurl('console'), "meta" => array("target" => "_blank")));
+  //$wp_admin_bar->add_menu( array( 'id'=>'snappie', 'parent' => 'user-actions', 'title' => __t('Vizualizacija'), 'href' => cscurl('visualize'), "meta" => array("target" => "_blank")));
+  //$wp_admin_bar->add_menu( array( 'id'=>'crackle', 'parent' => 'user-actions', 'title' => __t('Izvori'), 'href' => cscurl('resources'), "meta" => array("target" => "_blank")));
+  //$wp_admin_bar->add_menu( array( 'id'=>'pop', 'parent' => 'user-actions', 'title' => __t('Kontakt'), 'href' => cscurl('contact'), "meta" => array("target" => "_blank")));
 
   if (!is_admin())
     $wp_admin_bar->add_menu( array( 'parent' => 'top-secondary', 'id' => 'totop', 
@@ -202,8 +284,12 @@ function pb_menu_items($wp_admin_bar) {
       if ($count > 0) {
         $msg = $wpdb->get_row("SELECT ustudent, problem, ID FROM ".$wpdb->prefix."pb_mail 
                              WHERE $where ORDER BY ID ASC LIMIT 1", ARRAY_A);
-        
-        $url = cscurl('mail') . "?who=".$msg['ustudent']."&what=".$msg['problem']."&which=".$msg['ID'].'#m';
+        $level=$wpdb->get_var("SELECT wp_pb_lesson_level.id
+FROM wp_pb_problems, wp_pb_lessons,wp_pb_lesson_level
+WHERE wp_pb_problems.postid=wp_pb_lessons.id
+AND wp_pb_lessons.level_id=wp_pb_lesson_level.id
+AND wp_pb_problems.slug='".$msg['problem']."'");
+        $url = cscurl('mail') . "?who=".$msg['ustudent']."&level=".$level."&what=".$msg['problem']."&which=".$msg['ID'].'#m';
         
         $wp_admin_bar->add_menu( array( 'parent' => 'top-secondary', 'id' => 'mail', 'href' => $url,
                                         'title' => '<img title="'.__t('idi na najstariji neodgovoreni e-mail').'"'.

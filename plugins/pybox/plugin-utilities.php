@@ -158,9 +158,9 @@ function userIsTranslator() {
 
 function nicefiedUsername($uid, $short = TRUE) {
   if (($uid == 0 && userIsAdmin()) || ($uid == getUserID())) 
-    return __t('me');
+    return __t('ja');
   elseif ($uid == 0 || $uid == CSCIRCLES_ASST_ID_DE)
-    return $short ? __t('Asst.') : __t('CS Circles Assistant');
+    return $short ? __t('Mentor') : __t('Mentor');
   else
     return get_userdata($uid)->user_login;
 }
@@ -171,7 +171,9 @@ function guruIDID($id) {
 }
 
 function rightNowString() { // in format beloved by SQL
-  date_default_timezone_set('America/New_York');
+  //modified by Marija Djokic
+  date_default_timezone_set('Europe/Belgrade');
+  //
   return date("y-m-d H:i:s", time());
 }
 
@@ -211,7 +213,9 @@ function pyboxlog($message, $suppressemail = -1) {
   }
   if (defined('PPYBOXLOG')) {
     $file = fopen(PPYBOXLOG, "a");
-    date_default_timezone_set('America/New_York');
+    //modified by Marija Djokic
+    date_default_timezone_set('Europe/Belgrade');
+    //
     fwrite($file, date("y-m-d H:i:s", time()) . " " . $message . "\n");
     fclose($file);
   }
@@ -415,6 +419,53 @@ function getStudents($with_hidden = false) {
   return $result;
 }
 
+//added by Marija Djokic
+function getStudentsByDate($with_hidden = false, $date) {
+  global $current_user;
+  get_currentuserinfo();
+  //echo $date;
+  if ( ! is_user_logged_in() )
+    return array();
+
+  global $wpdb;
+  $ulogin = $current_user->user_login;
+  if($date=="")
+  {
+  //echo "pocetni".$date;
+  $rows = $wpdb->get_results($wpdb->prepare("SELECT user_id FROM ".$wpdb->prefix."usermeta WHERE meta_key=%s AND meta_value=%s ORDER BY user_id DESC", 'pbguru', $ulogin));
+  }
+  else
+  {
+  $newdate=date("Y-m-d", strtotime($date));
+  //echo "Novi datum".$newdate;
+  $rows = $wpdb->get_results($wpdb->prepare("SELECT user_id FROM ".$wpdb->prefix."usermeta WHERE meta_key=%s AND meta_value=%s AND user_id IN
+(SELECT ID
+FROM wp_users
+WHERE user_registered>'".$newdate."'
+) ORDER BY user_id DESC", 'pbguru', $ulogin));
+  
+  }
+
+  $result = array();
+  if ($with_hidden)
+    $hidden = array();
+  else
+    $hidden = explode(",", get_user_meta(wp_get_current_user()->ID, 'pb_hidestudents', true));
+  foreach ($rows as $row) if (!in_array($row->user_id, $hidden)) $result[] = $row->user_id;
+  return $result;
+}
+
+
+function getStudentListByDate($with_hidden = false, $date) {
+  if ( ! is_user_logged_in() )
+    return FALSE;
+
+  $students = getStudentsByDate(false, $date);
+
+  return '('.implode(',', $students).')';
+}
+//
+
 function getStudentList($with_hidden = false) {
   if ( ! is_user_logged_in() )
     return FALSE;
@@ -469,7 +520,9 @@ function timeAndMicro() {
 
 function simpleProfilingEntry($data) {
   global $wpdb;
-  date_default_timezone_set('America/New_York');
+  //modified by Marija Djokic
+  date_default_timezone_set('Europe/Belgrade');
+  //
   $start = date( 'Y-m-d H:i:s', time() );
   $preciseStart = timeAndMicro();
   $table_name = $wpdb->prefix . "pb_profiling";
@@ -487,7 +540,9 @@ function beginProfilingEntry($data) {
   // $data must be a subset of the column names in wp_pb_profiling
   // if $data['meta'] exists it will get json_encoded
   global $wpdb;
-  date_default_timezone_set('America/New_York');
+  //modified by Marija Djokic
+  date_default_timezone_set('Europe/Belgrade');
+  //
   $start = date( 'Y-m-d H:i:s', time() );
   $preciseStart = timeAndMicro();
   $table_name = $wpdb->prefix . "pb_profiling";
@@ -518,7 +573,9 @@ function endProfilingEntry($id, $data=array()) {
 
 // don't actually do separate start and end calls; just a single thing
 function retroProfilingEntry($seconds, $data=array()) {
-  date_default_timezone_set('America/New_York');
+  //modified by Marija Djokic
+  date_default_timezone_set('Europe/Belgrade');
+  //
   $data['start'] = date( 'Y-m-d H:i:s', time() );
   $data['preciseEnd'] = implode(".", timeAndMicro());
   $data['preciseStart'] = $data['preciseEnd'] - $seconds;
@@ -533,7 +590,7 @@ function retroProfilingEntry($seconds, $data=array()) {
 function optionsHelper($options, $argname) {
   // $options is an associative array mapping value=>text for html <options> elements
   $select = getSoft($_GET, $argname, NULL);
-  $r = "<select name='$argname'>";
+  $r = "<select name='$argname' id='$argname'>";
   foreach ($options as $key => $text) 
     if ($key == $select)
       $r .= "<option value='$key' selected='selected'>$text</option>";
@@ -543,16 +600,29 @@ function optionsHelper($options, $argname) {
   return $r;
 }
 
+
 function pythonEscape($string) {
   return "'''" . addslashes($string) . "'''";
 }
 
-
+//modified by Marija Djokic
 function allSolvedCount() {
   global $wpdb;
-  return $wpdb->get_var("select count(1) from ".$wpdb->prefix."pb_completed;");
+  return $wpdb->get_var("
+SELECT COUNT(1) FROM ".$wpdb->prefix."pb_completed
+WHERE problem IN
+(SELECT slug
+FROM ".$wpdb->prefix."pb_problems, ".$wpdb->prefix."pb_lessons
+WHERE slug IS NOT NULL
+AND wp_pb_problems.postid=wp_pb_lessons.id
+AND is_test=0)");
 }
 
+function allUsers() {
+  global $wpdb;
+  return $wpdb->get_var("SELECT COUNT(1) FROM wp_users");
+}
+//
 function resendEmails() {
   global $wpdb;
   $return;
@@ -561,7 +631,7 @@ function resendEmails() {
     $pname = $wpdb->get_var("SELECT publicname FROM ".$wpdb->prefix."pb_problems WHERE slug like '$problem'");
     $purl = $wpdb->get_var("SELECT url FROM ".$wpdb->prefix."pb_problems WHERE slug like '$problem'");
     
-    $subject = "CS Circles - Message about $pname";
+    $subject = "IMI Python learning - Poruka o $pname";
     $to = get_user_by('id', $r['uto'])->user_email;
 
     if ($r['ufrom'] == 0)
@@ -604,10 +674,14 @@ function problemSourceWidget($parms, $bump = false) {
   if ( is_user_logged_in() ) {
     $classes = "get-problem-source";
     if ($bump) $classes .= " bumpit";
-    
+    //modified by Marija Djokic
+    $page_id = get_queried_object_id();
+    global $wpdb;
+    if($wpdb->get_var("SELECT is_test FROM wp_pb_lessons WHERE id=$page_id")==0)
     return '<a class="'.$classes.'" target="_blank" title="'.__t('Vidi definiciju')
       .'" href="'.UPROBLEMSOURCE.'?'.http_build_query($parms).'">'
       .'&lt;/&gt;</a>';
+   //
   }
   else return "";
 }
@@ -616,11 +690,14 @@ function pageSourceWidget() {
   global $post;
   if ( is_user_logged_in() && isset($post) ) {
     $classes = "get-page-source";
-    
+    //modifed by Marija Djokic
+    $page_id = get_queried_object_id();
+    global $wpdb;
+    if($wpdb->get_var("SELECT is_test FROM wp_pb_lessons WHERE id=$page_id")==0)
     return '<a class="'.$classes.'" target="_blank" title="'.__t('Pogledajte izvorni kod')
       .'" href="'.UPAGESOURCE.'?'.http_build_query(array("page"=>$post->ID)).'">'
       ."<img src='".UFILES."/cc.png'></a>";
-      //      .'&lt;/&gt;</a>';
+      // 
   }
   else return "";
 }

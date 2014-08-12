@@ -13,7 +13,10 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
    $db_query_info['type'] = 'entire-history';
 
    $user = getSoft($req, "user", "");   
-   $problem = getSoft($req, "problemhash", "");   
+   $problem = getSoft($req, "problemhash", ""); 
+   $level = getSoft($req, "level", "");  
+   $test = getSoft($req, "level", "");   
+   
 
    $resultdesc = array('y'=> __t('Program je izvršen bez grešaka.'), 
 		       'Y'=> __t('Tačno!'), 
@@ -26,6 +29,7 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
    //by Marija Djokic 
    $currentuser=get_current_user();
    $currentuserid= $current_user->ID;
+   $useradminid=$current_user->ID;
    $pagetitle=get_the_title();
    //
    get_currentuserinfo();
@@ -59,7 +63,23 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
 
    // make an associative array indexed by slug
    //modified by Marija Djokic
-   $problemTable = $wpdb->get_results("SELECT slug, publicname, url FROM ".$wpdb->prefix."pb_problems WHERE slug IS NOT NULL", 
+
+
+
+$problemTableQuery="SELECT slug, publicname, url FROM ".$wpdb->prefix."pb_problems, wp_pb_lessons, wp_users WHERE slug IS NOT NULL AND postid=wp_pb_lessons.id AND wp_pb_lessons.level_id= ";
+
+if($level !='')
+{
+
+$problemTableQuery .= $level." AND wp_users.ID=$currentuserid.";
+}
+else
+{
+ $problemTableQuery .=" wp_users.current_lesson_level_id
+AND wp_users.id=$currentuserid";
+
+}
+   $problemTable = $wpdb->get_results($problemTableQuery, 
 				      OBJECT_K);
   //
 
@@ -95,50 +115,158 @@ function dbEntireHistory($limit, $sortname, $sortorder, $req=NULL) {
     else
 {
      $whereStudent = $wpdb->prepare("userid = %d", $uid);
-//
+
 }
    }     
 
+if($pagetitle=="Progres studenata")
+{
+if(userIsAdmin()){
    $count = 
-     $wpdb->get_var("
-SELECT COUNT(1)
-FROM ".$wpdb->prefix."pb_submissions 
-WHERE $whereStudent AND $whereProblem");
-
-   if ($count==0) 
-     return __t("Konekcija sa bazom je uspela, ali podaci nisu pronađeni.");
-
-   $prep = "
-SELECT userid, ID, beginstamp, usercode, userinput, result, problem
-FROM ".$wpdb->prefix."pb_submissions 
+     $wpdb->get_var
+	("SELECT COUNT(1)
+FROM wp_pb_submissions
 WHERE $whereStudent AND $whereProblem
-ORDER BY $sortString ID DESC " . $limit;
- 
+AND problem
+IN (
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = $level
+AND wp_users.ID =$useradminid
+)");
+//echo $count;
+}
+else
+{
+$count = 
+     $wpdb->get_var
+	("SELECT COUNT(1)
+FROM wp_pb_submissions
+WHERE $whereStudent AND $whereProblem
+AND problem
+IN (
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = $level
+AND wp_users.ID =$uid
+)");
+//echo $count;
+}
+}
+else
+{
+  $count = 
+     $wpdb->get_var
+	("SELECT COUNT(1)
+FROM wp_pb_submissions
+WHERE $whereStudent
+AND problem
+IN (
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = wp_users.current_lesson_level_id
+AND wp_users.ID =$uid
+)");
+//echo $count;
+}
+//echo $count;
+
+   //if ($count==0) 
+     //return __t("Konekcija sa bazom je uspela, ali podaci nisu pronađeni.");
+
+
+if($whereProblem !="1")
+{
+$prep = "
+SELECT userid, ID, beginstamp, usercode, userinput, result, problem
+FROM ".$wpdb->prefix."pb_submissions
+WHERE $whereStudent AND $whereProblem
+GROUP BY userid
+ORDER BY $sortString ID DESC $limit";
+
+//echo $prep;
+}
+
+else
+{
+
+$prep = "
+SELECT userid, ID, beginstamp, usercode, userinput, result, problem
+FROM ".$wpdb->prefix."pb_submissions
+WHERE $whereStudent AND $whereProblem
+AND problem IN (
+SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.level_id = ";
+if($level !='')
+{
+$prep .= $level."
+)
+ORDER BY $sortString ID DESC $limit";
+}
+else
+{
+ $prep .="wp_users.current_lesson_level_id
+AND wp_users.id=$uid
+)
+ORDER BY $sortString ID DESC $limit";
+}
+//echo $prep;
+}
+
+   
    $flexirows = array();
    foreach ($wpdb->get_results( $prep, ARRAY_A ) as $r) {
+     
      $cell = array();
      if ($u == "all") {
        $cell[__t('userid')] = str_replace(' ', "<br>", userString($r['userid'], true));
      }
+     
      $p = $r['problem'];
      if (array_key_exists($p, $problemTable)) 
-
+     
        $cell[__t('problem')] = '<a class="open-same-window" href="' . $problemTable[$p]->url . '">'
 	 . $problemTable[$p]->publicname . '</a>';
+
+
      else
+
        $cell[__t('problem')] = $p;
+
+       
      $cell[__t('korisnički kod')] = preBox($r['usercode'], -1, -1);
      $cell[__t('korisnički unos')] = $r['userinput'] == NULL ? '<i>'.__t('n/a').'</i>' : preBox($r['userinput'], -1, 100000);
      if ($p != 'visualizer' && $p != 'visualizer-iframe')
        $cell[__t('rezultat')] = getSoft($resultdesc, $r['result'], '???');
      else
-       $cell[__t('rezultat')] = '<i>n/a</i>';       
+       $cell[__t('rezultat')] = '<i>ne/da</i>';       
      $cell[__t('Vreme &amp; ID')] = str_replace(' ', '<br/>', $r['beginstamp']) . '<br/>#' . $r['ID'];
-
+    
      $flexirows[] = array('id'=>$r['ID'], 'cell'=>$cell);
+
    }
+
    return array('total' => $count, 'rows' => $flexirows);
+
  };
+
 
 // only do this if calld directly
 if(strpos($_SERVER["SCRIPT_FILENAME"], '/db-entire-history.php')!=FALSE) {

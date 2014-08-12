@@ -33,7 +33,7 @@ IMI Python learning tim Vam se zahvaljuje!
     $body = preg_replace($find, $replace, $body);
     $body = preg_replace("/%.*%/", "", $body);
     
-    pb_mail('"'.get_option('blogname').'"<'.CSCIRCLES_BOUNCE_EMAIL.'>', '<'.$user_email.'>', $subject, $body);
+    pb_mail('"'.get_option('blogname').'"<m.djokic@kg.ac.rs>', '<'.$user_email.'>', $subject, $body);
   }
  }
 

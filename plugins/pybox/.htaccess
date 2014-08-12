@@ -27,4 +27,3 @@ Allow from All
 <FilesMatch "^(action-|db-|page-).*\.php$">
 Allow from All
 </FilesMatch>
-

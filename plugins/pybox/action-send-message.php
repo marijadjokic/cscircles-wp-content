@@ -27,7 +27,7 @@ function send($problem_info, $from, $to, $student, $slug, $body, $noreply) {
   $mailref = $wpdb->insert_id;
 
   if (userIsAdmin() || userIsAssistant())
-    $mFrom = '"'. __t("IMI Python elearning") . '"<'.CSCIRCLES_BOUNCE_EMAIL.'>';
+    $mFrom = '"'. __t("IMI Python elearning") . '"<m.djokic@kg.ac.rs>';
   else 
     $mFrom = '"' . $current_user->user_login . '" <' . $current_user->user_email . '>';
 
@@ -35,7 +35,7 @@ function send($problem_info, $from, $to, $student, $slug, $body, $noreply) {
   
   $contents = $body."\n===\n";
   $contents .= __t("Da biste odgovroili na poruku molimo Vas posetite")."\n";
-  $contents .= cscurl('mail') . "?who=$student&what=$slug&which=$mailref#m\n";
+  $contents .= cscurl('mail') . "?who=$student&level=$level&what=$slug&which=$mailref#m\n";
   $contents .= __t("Problem URL:")." " . $problem_info['url'] . "\n";
   $contents .= "[".__t("IMI Python elearning")." ".cscurl("homepage")."]";
 
@@ -100,7 +100,7 @@ if ($source == 1) { //inline help form
 
   $code = stripcslashes($_POST["code"]);
   
-  $message .= "\n===\n".__t("The user sent this code with the message:")."\n===\n" . $code;
+  $message .= "\n===\n".__t("Korisnik je poslao sledeći kod sa porukom:")."\n===\n" . $code;
 
   echo send($problem_info, getUserID(), isSoft($_POST, 'recipient', '1') ? $guru->ID : 0, getUserID(), $slug, $message, $noreply);
  }
@@ -110,7 +110,9 @@ elseif ($source == 2) { //mail page
   $guru = get_user_by('login', $guru_login);        // FALSE if does not exist
   if (userIsAdmin() || userIsAssistant() || getUserID() == $guru->ID) {
     // from {guru or CSC Asst.} to student
-    echo send($problem_info, userIsAdmin()?0:getUserID(), $id, $id, $slug, $message, $noreply);
+//modified by Marija Djokic
+    echo send($problem_info, userIsAdmin()?getUserID():0, $id, $id, $slug, $message, $noreply);
+//
   }
   elseif ($id == getUserID()) {
     // from student to {guru or CSC Asst.}

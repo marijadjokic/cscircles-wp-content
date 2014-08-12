@@ -71,8 +71,8 @@ function isMakingDatabases() {
 function slugwarn() {
   return "<b style='color:red;' class='slugwarn'>UPOZORENJE: ovaj problem zahteva konstantni <i> slug </i> da sačuva korisničke podatke</b></br>";
 }
-
-function registerPybox($id, $slug, $type, $facultative, $title, $content, $args = NULL, $hash = NULL, $graderOptions = NULL) {
+//modified by Marija Djokic
+function registerPybox($id, $slug, $type, $facultative, $title, $content, $points, $args = NULL, $hash = NULL, $graderOptions = NULL) {
   if (is_array($args))
     $args = json_encode($args);
   global $wpdb, $lesson_reg_info;
@@ -93,6 +93,9 @@ function registerPybox($id, $slug, $type, $facultative, $title, $content, $args 
     $row['facultative'] = $facultative;
     $row['url'] = $lesson_reg_info['url'] . '#pybox' . $id;
     $row['lang'] = $lesson_reg_info['lang'];
+//modified by Marija Djokic
+    $row['points'] = $points;
+//
     if ($title != NULL) {
       if ($lesson_reg_info['index'] >= 0) 
 	$row['publicname'] = $lesson_reg_info["fullnumber"] . ': ' . $title;
@@ -132,7 +135,8 @@ function registerPybox($id, $slug, $type, $facultative, $title, $content, $args 
 		   'shortcodeArgs' => $args,
 		   'graderArgs' => $graderOptions,
 		   'hash' => $hash,
-		   'lang' => $lang);
+		   'lang' => $lang,
+		   'points' => $points);
       if ($slug != 'NULL')  $row['slug'] = $slug;
       $wpdb->insert($wpdb->prefix."pb_problems", $row);
     }
@@ -161,9 +165,12 @@ function pyShortHandler($options, $content) {
   //echo $type;
   $r = '';
   $slug = getSoft($options, 'slug', 'NULL');
+//modified by Marija Djokic
+  $points = getSoft($options, 'points', 'NULL');
+///
   //echo $slug;
   $r .= "<div class='pybox modeNeutral' id='pybox$id'>\n";
-  registerPybox($id, $slug, "short answer", FALSE, getSoft($options, 'title', NULL), $content, $options);
+  registerPybox($id, $slug, "short answer", FALSE, getSoft($options, 'title', NULL), $content, $points, $options);
   if (isMakingDatabases()) return do_short_and_sweetcode($content); // faster db generation with accurate count
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
@@ -205,8 +212,11 @@ function pyMultiHandler($options, $content) {
 
   $r = '';
   $slug = getSoft($options, 'slug', 'NULL');
+//modified by Marija Djokic
+$points = getSoft($options, 'points', 'NULL');
+//
   $r .= "<div class='pybox modeNeutral' id='pybox$id'>\n";
-  registerPybox($id, $slug, "multiple choice", FALSE, getSoft($options, 'title', NULL), $content, $options);
+  registerPybox($id, $slug, "multiple choice", FALSE, getSoft($options, 'title', NULL), $content,$points, $options);
   if (isMakingDatabases()) return do_short_and_sweetcode($content); // faster db generation with accurate count
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
@@ -259,8 +269,11 @@ function pyMultiScrambleHandler($options, $content) {
 
   $r = '';
   $slug = getSoft($options, 'slug', 'NULL');
+//modified by Marija Djokic
+  $points = getSoft($options, 'points', 'NULL');
+//
   $r .= "<div class='pybox modeNeutral multiscramble' id='pybox$id'>\n";
-  registerPybox($id, $slug, "multichoice scramble", FALSE, getSoft($options, 'title', NULL), $content, $options);
+  registerPybox($id, $slug, "multichoice scramble", FALSE, getSoft($options, 'title', NULL), $content,$points, $options);
   if (isMakingDatabases()) return do_short_and_sweetcode($content);; // faster db generation with accurate count
   $r .= checkbox($slug);
   if (!array_key_exists('slug', $options)) $r .= slugwarn();
@@ -455,8 +468,10 @@ function pyBoxHandler($options, $content) {
   $hash = md5($shortcodeOptions . $optionsJson);
 
   $slug = getSoft($options, 'slug', 'NULL');
-
-  registerPybox($id, $slug, $scramble?"scramble":"code", $facultative, getSoft($options, 'title', NULL), $content, $shortcodeOptions, $hash, $optionsJson);
+//modified by Marija Djokic
+$points = getSoft($options, 'points', 'NULL');
+//
+  registerPybox($id, $slug, $scramble?"scramble":"code", $facultative, getSoft($options, 'title', NULL), $content,$points, $shortcodeOptions, $hash, $optionsJson);
   if (isMakingDatabases()) {
     $res = do_short_and_sweetcode($content); // faster db generation with accurate count
     $GLOBALS['pb_translation'] = NULL;
@@ -538,16 +553,14 @@ if (!$facultative && !$scramble) {
       $guruid = $wpdb->get_var($wpdb->prepare('SELECT ID from '.$wpdb->prefix.'users WHERE user_login = %s', $guru_login));
     $r .= '<div style="text-align: center">';
     if ($guru_login != '' and $guruid !== NULL) {
-      $r .= __t('Send a question by e-mail to: ');
+      $r .= __t('Kontaktirajte mentora: ');
       $r .= "<select class='recipient'>
 <option value='1'>".__t("Moj mentor")." ($guru_login)</option>
-<option value='-1'>".__t("Asistent")."</option>
 </select></div>";
     } 
     else {
       $r .= __t('Pošaljite pitanje: ');
       $r .= "<select class='recipient'>
-<option value='-1'>".__t("Asistent")."</option>
 <option value='0'>".__t("(Vaš profil nema definisanog mentora)")."</option>
 </select>";
       $r .= '<br/></div>';
@@ -675,8 +688,11 @@ if (!$facultative && !$scramble) {
       $actions['default'] = array('value'=>__t('Resetovati kod na podrazumevani'), 'onclick'=>"pbSetText($id,descape($('#defaultCode$id').val()))", );
     }
   }
-
+  
   if (!$facultative && !$scramble && !(get_option('cscircles_hide_help'))) {
+ if(!is_null($slug))
+        $is_test= $wpdb->get_var("SELECT is_test FROM wp_pb_lessons, wp_pb_problems WHERE wp_pb_problems.postid=wp_pb_lessons.id AND slug='$slug'");
+    if(!$is_test)
     $actions['help'] = array('value'=>__t('Pomoć'), 'onclick'=>"helpClick($id);");
   }
 

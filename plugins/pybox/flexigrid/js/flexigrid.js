@@ -331,7 +331,7 @@
 					p.pages = 1;
 					p.page = 1;
 					this.buildpager();
-					$('.pPageStat', this.pDiv).html(p.nomsg);
+					$('.pPageStat', this.pDiv).html("Ne postoje stavke.");
 					return false;
 				}
 				p.pages = Math.ceil(p.total / p.rp);
@@ -475,7 +475,7 @@
 				if (p.total < r2) {
 					r2 = p.total;
 				}
-				var stat = p.pagestat;
+				var stat = "Prikaz {from} - {to} od {total}";
 				stat = stat.replace(/{from}/, r1);
 				stat = stat.replace(/{to}/, r2);
 				stat = stat.replace(/{total}/, p.total);
@@ -495,7 +495,7 @@
 				if (!p.url) {
 					return false;
 				}
-				$('.pPageStat', this.pDiv).html(p.procmsg);
+				$('.pPageStat', this.pDiv).html("Molimo, sačekajte...");
 				$('.pReload', this.pDiv).addClass('loading');
 				$(g.block).css({
 					top: g.bDiv.offsetTop
@@ -975,7 +975,8 @@
 			g.pDiv.className = 'pDiv';
 			g.pDiv.innerHTML = '<div class="pDiv2"></div>';
 			$(g.bDiv).after(g.pDiv);
-		        var html = ' <div class="pGroup"> <div class="pFirst pButton"><span></span></div><div class="pPrev pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pcontrol">' + p.pagetext + ' <input type="text" size="4" value="1" /> ' + p.outof + ' <span> 1 </span></span></div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pNext pButton"><span></span></div><div class="pLast pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pReload pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pPageStat"></span></div>';
+                       
+		        var html = ' <div class="pGroup"> <div class="pFirst pButton"><span></span></div><div class="pPrev pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pcontrol">Strana <input type="text" size="4" value="1" /> od <span> 1 </span></span></div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pNext pButton"><span></span></div><div class="pLast pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pReload pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pPageStat"></span></div>';
  		        if (p.showCloseBtn)
  		            html += '<div class="btnseparator"></div><div class="pGroup"><div class="pyflexClose pButton"><span></span></div></div>';
  			$('div', g.pDiv).html(html);

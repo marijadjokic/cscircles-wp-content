@@ -41,6 +41,11 @@ function pyBoxHead() {
   echo sprintf("var DEFAULTTIMEOUTMS = '%s';\n", (WALLFACTOR*1 + WALLBUFFER)*1000);
 
   echo "</script>\n";
+  
+echo '<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">';
+echo "<link rel='stylesheet' type='text/css' href='".UPYBOX."datapicker.css'>";
+echo '<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>';
+
 
   echo '<link type="text/css" rel="stylesheet" href="'.UPYBOXCSS.'" />' . "\n";
   echo '<script type="text/javascript" src="'.UPYBOXJS.'"></script>'."\n";

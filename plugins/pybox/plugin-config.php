@@ -7,11 +7,11 @@ define('CSCIRCLES_ASST_ID_DE', 11351); // hacky; will be fixed later
 // optional reporting and exporting.
 // if you want logging to work, you must define one of the two
 // PYBOXLOG constants
-define ('ON_CEMC_SERVER', UWPHOME == 'http://cscircles.cemc.uwaterloo.ca'
-        || UWPHOME == 'http://cscircles.cemc.uwaterloo.ca/dev');
+define ('ON_CEMC_SERVER', UWPHOME == 'http://147.91.205.71/wordpress'
+        || UWPHOME == 'http://147.91.205.71/wordpress');
 if (ON_CEMC_SERVER) {
   // if you want some of these, remove them from the 'if' block
-  define('PYBOXLOG_EMAIL', 'daveagp@gmail.com');        // e-mail notifications for logging
+  define('PYBOXLOG_EMAIL', 'm.djokic@kg.ac.rs');        // e-mail notifications for logging
   define('PPYBOXLOG', ABSPATH . '../../pybox_log.txt'); // file, writeable by apache, for logging
   define('PEXPORT', ABSPATH . '../../export/');         // export directory
 }

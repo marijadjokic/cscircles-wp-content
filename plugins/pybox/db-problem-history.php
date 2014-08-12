@@ -15,24 +15,24 @@ function dbProblemHistory($limit, $sortname, $sortorder, $req = NULL) {
    $problemname = getSoft($req, "p", ""); //which problem?
    $user = getSoft($req, "user", "");   
    if ($problemname=="")
-     return __t("You must enter a non-empty problem name.");
+     return __t("Morate uneti naziv zadatka.");
    $db_query_info['problem'] = $problemname;
 
    $resultdesc = array('y'=> __t('Did not crash.'), 
-		       'Y'=> __t('Correct!'), 
-		       'N'=> __t('Incorrect.'), 
-		       'E'=> __t('Internal error.'), 
-		       'S'=> __t('Saved.'),
-		       's'=> __t('Saved.'));
+		       'Y'=> __t('Tačno!'), 
+		       'N'=> __t('Netačno.'), 
+		       'E'=> __t('Unutrašnja greška.'), 
+		       'S'=> __t('Sačuvano.'),
+		       's'=> __t('Sačuvano.'));
 
    if ( !is_user_logged_in() )
-     return __t("You must log in to view past submissions.");
+     return __t("MOrate biti prijavljeni da bi ste videli istoriju komunikacije.");
    //modified by Marija Djokic
    if ( (userIsAdmin() || userIsAssistant()) && $user != "") {
    //
      $u = get_userdata($user);
      if ($u === false) 
-       return sprintf(__t("User number %s not found."), $u);
+       return sprintf(__t("Korisnički broj %s nije pronađen."), $u);
      $db_query_info['viewuser'] = $user;
    }
    else
@@ -46,13 +46,21 @@ function dbProblemHistory($limit, $sortname, $sortorder, $req = NULL) {
 
    $counts = $wpdb->get_results
      ($wpdb->prepare("SELECT COUNT(1), COUNT(userinput) from $table_name
-WHERE userid = %d AND problem = %s", $uid, $problemname), ARRAY_N);
+WHERE userid = %d AND problem = %s AND problem IN 
+(SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.is_test=0
+)", $uid, $problemname), ARRAY_N);
    
    $count = $counts[0][0];
    $showInputColumn = $counts[0][1] > 0;
    
    if ($count==0) 
-     return sprintf(__t('We do not have record of any submissions from user %1$s for problem %2$s.'),
+     return sprintf(__t('Ne postoji istorija korisnika %1$s za problem %2$s.'),
 		    $uname . ' (#'.$uid.')',
 		    $problemname);
    
@@ -66,17 +74,25 @@ WHERE userid = %d AND problem = %s", $uid, $problemname), ARRAY_N);
    else $sortString = "";
 
    $prep = $wpdb->prepare("SELECT ID, beginstamp, usercode, userinput, result from $table_name
-WHERE userid = %d AND problem = %s ORDER BY $sortString ID DESC" . $limit, $uid, $problemname);
-
+WHERE userid = %d AND problem = %s AND problem IN 
+(SELECT slug 
+FROM wp_pb_problems, wp_pb_lessons, wp_users
+WHERE facultative =0
+AND lesson IS NOT NULL 
+AND wp_pb_problems.lang = 'sr'
+AND wp_pb_problems.postid = wp_pb_lessons.id
+AND wp_pb_lessons.is_test=0
+) ORDER BY $sortString ID DESC" . $limit, $uid, $problemname);
+  
    $flexirows = array();
    foreach ($wpdb->get_results( $prep, ARRAY_A ) as $r) {
      $cell = array();
-     $cell[__t('user code')] = preBox($r['usercode'], -1, -1);
+     $cell[__t('korisnički kod')] = preBox($r['usercode'], -1, -1);
      if ($showInputColumn) 
-       $cell[__t('user input')] = $r['userinput'] === NULL ? '<i>'.__t('n/a').'</i>' : preBox($r['userinput'], -1, 100000);
+       $cell[__t('korisnički unos')] = $r['userinput'] == NULL ? '<i>'.__t('ne').'</i>' : preBox($r['userinput'], -1, 100000);
      if ($problemname != "visualizer")
-       $cell[__t('result')] = getSoft($resultdesc, $r['result'], $r['result']);
-     $cell[__t('time &amp; ID')] = str_replace(' ', '<br/>', $r['beginstamp']) . '<br/>#' . $r['ID'];
+       $cell[__t('rezultat')] = getSoft($resultdesc, $r['result'], $r['result']);
+     $cell[__t('vreme')] = str_replace(' ', '<br/>', $r['beginstamp']) ;
      $flexirows[] = array('id'=>$r['ID'], 'cell'=>$cell);
    }
    return array('total' => $count, 'rows' => $flexirows);
